@@ -1,126 +1,181 @@
 <!DOCTYPE html>
 <html lang="fr">
+
 <head>
-  <meta charset="UTF-8" />
-  <title>Carte des parkings</title>
-  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
-  <link rel="stylesheet" href="https://unpkg.com/leaflet-routing-machine/dist/leaflet-routing-machine.css" />
-  <style>
-    #map { height: 100vh; width: 100%; }
-  </style>
+    <meta charset="UTF-8" />
+    <title>Carte des parkings</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet-routing-machine/dist/leaflet-routing-machine.css" />
+    <style>
+        #map {
+            height: 100vh;
+            width: 100%;
+        }
+
+        .leaflet-routing-container .leaflet-routing-alt>table tr:not(:first-child) {
+            display: none;
+        }
+
+        .leaflet-routing-container {
+            position: absolute;
+            top: 3vw;
+            right: 50vw;
+            transform: translateX(50%);
+            z-index: 1000;
+            background: rgba(255, 255, 255, 0.8);
+        }
+
+        /* Style pour le cercle de l'utilisateur */
+        .user-marker {
+            filter: drop-shadow(1px 1px 2px black);
+        }
+    </style>
 </head>
+
 <body>
-  <div id="map"></div>
+    <div id="map"></div>
 
-  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
-  <script src="https://unpkg.com/leaflet-routing-machine/dist/leaflet-routing-machine.min.js"></script>
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+    <script src="https://unpkg.com/leaflet-routing-machine/dist/leaflet-routing-machine.min.js"></script>
 
-  <script>
-    let map = null;
-    let userMarker = null;
-    let currentLat = null;
-    let currentLon = null;
-    let routingControl = null;
+    <script>
+        let map = null;
+        let userMarker = null;
+        let currentLat = null;
+        let currentLon = null;
+        let routingControl = null;
 
-    const rayonKm = 2; // Rayon de recherche
+        const rayonKm = 50;     // Rayon de recherche
 
-    // Fonction de calcul de distance
-    function getDistance(lat1, lon1, lat2, lon2) {
-      const R = 6371; // km
-      const dLat = (lat2 - lat1) * Math.PI / 180;
-      const dLon = (lon2 - lon1) * Math.PI / 180;
-      const a = Math.sin(dLat / 2) ** 2 +
+        // Fonction de calcul de distance
+        function getDistance(lat1, lon1, lat2, lon2) {
+            const R = 6371;     // km
+            const dLat = (lat2 - lat1) * Math.PI / 180;
+            const dLon = (lon2 - lon1) * Math.PI / 180;
+            const a = Math.sin(dLat / 2) ** 2 +
                 Math.cos(lat1 * Math.PI / 180) *
                 Math.cos(lat2 * Math.PI / 180) *
                 Math.sin(dLon / 2) ** 2;
-      const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-      return R * c;
-    }
+            const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+            return R * c;
+        }
 
-    // Initialisation de la carte
-    if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(position => {
-        currentLat = position.coords.latitude;
-        currentLon = position.coords.longitude;
 
-        // Centrer la carte dès le départ sur la position actuelle
-        map = L.map('map').setView([currentLat, currentLon], 15);
+        // Initialisation de la carte
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(position => {
+                currentLat = position.coords.latitude;
+                currentLon = position.coords.longitude;
 
-        // Ajouter le fond de carte
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-          attribution: '&copy; OpenStreetMap contributors'
-        }).addTo(map);
+                // Centrer la carte dès le départ sur la position actuelle
+                map = L.map('map', {
+                    minZoom: 3,     // zoom minimum
+                    maxZoom: 19     // zoom maximum
+                }).setView([currentLat, currentLon], 14);
 
-        // Ajouter le contrôle d’itinéraire
-        routingControl = L.Routing.control({
-          waypoints: [],
-          routeWhileDragging: false
-        }).addTo(map);
+                // Ajouter le fond de carte
+                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                    attribution: '&copy; OpenStreetMap contributors',
+                    maxZoom: 19,
+                    noWrap: true,   // empêche la répétition horizontale
+                }).addTo(map);
 
-        // Ajouter le marker rouge de l'utilisateur
-        userMarker = L.circleMarker([currentLat, currentLon], {
-          radius: 6,
-          color: 'red'
-        }).addTo(map)
-          .bindPopup("Vous êtes ici")
-          .openPopup();
+                // Bloque le déplacement hors du monde
+                map.setMaxBounds([[-90, -180], [90, 180]]);
+                map.on('drag', function () {
+                    map.panInsideBounds([[-90, -180], [90, 180]], { animate: false });
+                });
 
-        // Charger les parkings après initialisation
-        loadParkings();
+                // Ajouter le contrôle d’itinéraire
+                routingControl = L.Routing.control({
+                    waypoints: [],
+                    routeWhileDragging: false,
+                    show: true,
+                    lineOptions: {
+                        styles: [{ color: 'blue', opacity: 0.6, weight: 3 }] // style de la ligne de guidage
+                    }
+                }).addTo(map);
 
-        // Mettre à jour en temps réel
-        navigator.geolocation.watchPosition(updatePosition);
 
-      }, err => {
-        alert("Impossible de vous localiser : " + err.message);
-      });
-    } else {
-      alert("La géolocalisation n'est pas supportée par ce navigateur.");
-    }
+                // Ajouter le marker rouge de l'utilisateur
+                userMarker = L.circleMarker([currentLat, currentLon], {
+                    radius: 9,
+                    color: 'white',
+                    weight: 4,
+                    fillColor: 'red',
+                    fillOpacity: 1
+                }).addTo(map)
+                    .bindPopup("Vous êtes ici")
+                    .openPopup();
 
-    // Mettre à jour la position en temps réel
-    function updatePosition(pos) {
-      currentLat = pos.coords.latitude;
-      currentLon = pos.coords.longitude;
-      userMarker.setLatLng([currentLat, currentLon]);
-    }
+                // Charger les parkings après initialisation
+                loadParkings();
 
-    // Charger et afficher les parkings depuis le backend PHP
-    function loadParkings() {
-      fetch('get_parkings.php')
-        .then(res => res.json())
-        .then(data => {
-          L.geoJSON(data, {
-            filter: feature => {
-              const lat = feature.geometry.coordinates[1];
-              const lon = feature.geometry.coordinates[0];
-              return getDistance(currentLat, currentLon, lat, lon) <= rayonKm;
-            },
-            onEachFeature: (feature, layer) => {
-              const nom = feature.properties.nom || "Parking";
-              layer.bindPopup(`
+                // Mettre à jour en temps réel
+                navigator.geolocation.watchPosition(updatePosition);
+
+            }, err => {
+                alert("Impossible de vous localiser : " + err.message);
+            });
+        } else {
+            alert("La géolocalisation n'est pas supportée par ce navigateur.");
+        }
+
+        // Mettre à jour la position en temps réel
+        function updatePosition(pos) {
+            currentLat = pos.coords.latitude;
+            currentLon = pos.coords.longitude;
+            userMarker.setLatLng([currentLat, currentLon]);
+        }
+
+        // Charger et afficher les parkings depuis le backend PHP
+        function loadParkings() {
+            fetch('get_parkings.php')
+                .then(res => res.json())
+                .then(data => {
+                    L.geoJSON(data, {
+                        filter: feature => {
+                            const lat = feature.geometry.coordinates[1];
+                            const lon = feature.geometry.coordinates[0];
+                            return getDistance(currentLat, currentLon, lat, lon) <= rayonKm;
+                        },
+                        onEachFeature: (feature, layer) => {
+                            const nom = feature.properties.nom || "Parking";
+                            layer.bindPopup(`
                 <b>${nom}</b><br>
                 <button onclick="goToParking(${feature.geometry.coordinates[1]}, ${feature.geometry.coordinates[0]})">
                   Itinéraire
                 </button>
               `);
-            }
-          }).addTo(map);
-        })
-        .catch(err => console.error("Erreur lors du chargement des parkings :", err));
-    }
+                        }
+                    }).addTo(map);
+                })
+                .catch(err => console.error("Erreur lors du chargement des parkings :", err));
+        }
 
-    // Itinéraire vers un parking
-    function goToParking(lat, lon) {
-      if (currentLat && currentLon) {
-        routingControl.setWaypoints([
-          L.latLng(currentLat, currentLon),
-          L.latLng(lat, lon)
-        ]);
-      } else {
-        alert("Position de l'utilisateur inconnue.");
-      }
-    }
-  </script>
+        // Itinéraire vers un parking
+        function goToParking(lat, lon) {
+            if (currentLat && currentLon) {
+                routingControl.setWaypoints([
+                    L.latLng(currentLat, currentLon),
+                    L.latLng(lat, lon)
+                ]);
+            } else {
+                alert("Position de l'utilisateur inconnue.");
+            }
+        }
+
+        // Bouton pour centrer la carte sur la position actuelle
+
+
+        centrerPosition = () => {
+            if (currentLat && currentLon) {
+                map.setView([currentLat, currentLon], 14);
+            } else {
+                alert("Position de l'utilisateur inconnue.");
+            }
+        }
+    </script>
 </body>
+
 </html>
