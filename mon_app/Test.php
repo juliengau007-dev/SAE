@@ -276,6 +276,68 @@
             align-items: center;
             justify-content: space-between;
         }
+
+        /* Menu de guidage en bas au millieu */
+        .menuGuider {
+            position: absolute;
+            bottom: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 1002;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+            border-radius: 10px;
+            background-color: rgba(255, 255, 255, 0.8);
+            border: 1px solid rgba(0, 0, 0, 1);
+
+            @media(min-width: 769px) {
+                height: 5vw;
+                width: 20vw;
+            }
+
+            @media(max-width: 768px) {
+                height: 10vw;
+                width: 60vw;
+            }
+        }
+
+        .menuGuider button {
+            padding: 8px 12px;
+            border: none;
+            border-radius: 5px;
+            background-color: white;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+            cursor: pointer;
+
+            @media(min-width: 769px) {
+                height: 2vw;
+                width: 8vw;
+            }
+
+            @media(max-width: 768px) {
+                height: 4vw;
+                width: 25vw;
+            }
+        }
+
+        .menuGuider button:hover {
+            transform: scale(1.1);
+        }
+
+        .menuGuider h2 {
+            margin: 0;
+            font-size: 1.2em;
+        }
+
+        #btnGuider {
+            background-color: rgba(78, 123, 30, 0.8);
+        }
+
+        #btnFermer {
+            background-color: rgba(197, 35, 51, 0.8);
+        }
     </style>
 </head>
 
@@ -290,6 +352,15 @@
         <div class="bottom-left">
             <button id="btnCentrer" onclick="centrerPosition()" title="Centrer sur ma position">📍</button>
         </div>
+
+        <!-- Guidage vers parking le plus proche -->
+        <div class="menuGuider bottom-center">
+            <h2 id="nearestParkingName"> </h2>
+            <button id="btnGuider" onclick="goToNearestParking()" title="Allez">Allez</button>
+            <button id="btnFermer" onclick="fermerGuidageAuto()" title="Fermer">Fermer</button>
+        </div>
+
+        <!-- Bouton de paramètres en haut à droite -->
         <div class="top-right">
             <button id="parametre">⚙️</button>
         </div>
@@ -418,7 +489,7 @@
             currentLon = pos.coords.longitude;
             if (userMarker) userMarker.setLatLng([currentLat, currentLon]);
         }
-        
+
         function loadParkings() {
             fetch('get_parkings.php')
                 .then(res => res.json())
@@ -461,6 +532,58 @@
             } else {
                 alert("Position de l'utilisateur inconnue.");
             }
+        }
+
+        async function findNearestParking() {
+            try {
+                const res = await fetch('get_parkings.php');
+                const data = await res.json();
+
+                let nearestParking = null;
+                let minDistance = Infinity;
+
+                data.features.forEach(feature => {
+                    const lat = feature.geometry.coordinates[1];
+                    const lon = feature.geometry.coordinates[0];
+                    const distance = getDistance(currentLat, currentLon, lat, lon);
+
+                    if (distance < minDistance) {
+                        minDistance = distance;
+                        nearestParking = feature;
+                    }
+                });
+
+                if (nearestParking) {
+                    const nom = nearestParking.properties.lib || "Parking inconnu";
+                    document.getElementById("nearestParkingName").textContent = nom;
+                } else {
+                    document.getElementById("nearestParkingName").textContent = "Aucun parking trouvé";
+                }
+
+                return nearestParking;
+            } catch (err) {
+                console.error("Erreur lors du chargement des parkings :", err);
+                document.getElementById("nearestParkingName").textContent = "Erreur de chargement";
+            }
+        }
+
+        function goToNearestParking() {
+            findNearestParking().then(nearestParking => {
+                if (nearestParking) {
+                    document.querySelector(".menuGuider").style.display = "none";
+                    const lat = nearestParking.geometry.coordinates[1];
+                    const lon = nearestParking.geometry.coordinates[0];
+                    goToParking(lat, lon);
+                } else {
+                    alert("Aucun parking trouvé.");
+                }
+            })
+                .catch(err => console.error("Erreur lors de la recherche du parking le plus proche :", err));
+        }
+
+        function fermerGuidageAuto() {
+            routingControl.setWaypoints([]);
+            document.querySelector(".menuGuider").style.display = "none";
         }
     </script>
 </body>
