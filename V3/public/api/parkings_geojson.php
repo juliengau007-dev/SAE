@@ -4,12 +4,16 @@ header('Content-Type: application/json; charset=utf-8');
 
 // Use existing WFS endpoint
 $wfsPath = __DIR__ . DIRECTORY_SEPARATOR . 'get_parkings.php';
-$wfs = @file_get_contents($wfsPath);
-if ($wfs === false) {
+if (!file_exists($wfsPath)) {
     http_response_code(502);
     echo json_encode(['error' => 'wfs_unavailable']);
     exit;
 }
+
+// Capture output of including the PHP endpoint so we get its JSON result
+ob_start();
+include $wfsPath;
+$wfs = ob_get_clean();
 
 $geo = json_decode($wfs, true);
 if (!isset($geo['features']) || !is_array($geo['features'])) {
