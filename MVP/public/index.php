@@ -777,7 +777,7 @@
                 if (!routingControl) return;
                 if (!updatePosition._lastRoutingTs) updatePosition._lastRoutingTs = 0;
                 const now = Date.now();
-                const ROUTING_THROTTLE_MS = 2000; // intervalle minimum entre recalculs
+                const ROUTING_THROTTLE_MS = 200; // intervalle minimum entre recalculs
                 if (now - updatePosition._lastRoutingTs < ROUTING_THROTTLE_MS) return;
                 updatePosition._lastRoutingTs = now;
 
@@ -1220,3 +1220,4 @@
 
 
 </html>
+
