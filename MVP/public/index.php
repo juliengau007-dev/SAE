@@ -155,7 +155,7 @@
             font-weight: 600;
             padding: 4px 8px;
             border-radius: 4px;
-            height: 30%;
+            height: 28%;
         }
 
         /* Metz availability display */
@@ -769,8 +769,7 @@
         function updatePosition(pos) {
             currentLat = pos.coords.latitude;
             currentLon = pos.coords.longitude;
-            const raw = [currentLat, currentLon];
-            const latlng = smoothLatLng(raw, 0.25);
+            const latlng = [currentLat, currentLon];
             if (userMarker) userMarker.setLatLng(latlng);
 
             // Recalcul du point de départ de l'itinéraire (throttlé pour limiter les requêtes)
@@ -808,22 +807,6 @@
                 const latlngOffset = map.containerPointToLatLng(pOffset);
                 map.setView(latlngOffset, defaultZoom, { animate: true });
             } catch (e) { /* map pas prête ou erreur */ }
-        }
-
-        /**
-         * smoothLatLng(newLatLng, alpha)
-         * Lissage exponentiel simple pour positions GPS.
-         * - newLatLng : [lat, lon]
-         * - alpha : facteur d'intégration (0..1)
-         */
-        function smoothLatLng(newLatLng, alpha = 0.3) {
-            if (_smoothPrev == null) _smoothPrev = newLatLng;
-            if (!_smoothPrev) { _smoothPrev = newLatLng; return newLatLng; }
-            _smoothPrev = [
-                _smoothPrev[0] + alpha * (newLatLng[0] - _smoothPrev[0]),
-                _smoothPrev[1] + alpha * (newLatLng[1] - _smoothPrev[1])
-            ];
-            return _smoothPrev;
         }
 
         // --------- GESTION DONNÉES / METZ AVAILABILITY ---------
@@ -1234,5 +1217,6 @@
         try { const elPmr = document.getElementById('pmrToggle'); const elHeight = document.getElementById('heightMax'); const elElec = document.getElementById('electricToggle'); if (elPmr) elPmr.addEventListener('change', () => { togglePMR(); onParamChange(); }); if (elHeight) elHeight.addEventListener('input', () => { onParamChange(); }); if (elHeight) elHeight.addEventListener('change', () => { onParamChange(); }); if (elElec) elElec.addEventListener('change', () => { onParamChange(); }); } catch (e) { console.warn('attach param listeners failed', e); }
     </script>
 </body>
+
 
 </html>
