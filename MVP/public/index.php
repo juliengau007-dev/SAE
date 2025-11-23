@@ -749,7 +749,12 @@
                 try { await findNearestParking(); } catch (e) { console.warn('initial nearest lookup failed', e); }
 
                 // démarrer la mise à jour continue de la position utilisateur
-                navigator.geolocation.watchPosition(updatePosition);
+                // Demander des positions en haute précision et éviter les valeurs trop anciennes
+                navigator.geolocation.watchPosition(
+                    updatePosition,
+                    err => { console.warn('watchPosition error', err); },
+                    { enableHighAccuracy: true, maximumAge: 500, timeout: 5000 }
+                );
             }, err => {
                 alert("Impossible de vous localiser : " + err.message);
             });
@@ -777,7 +782,7 @@
                 if (!routingControl) return;
                 if (!updatePosition._lastRoutingTs) updatePosition._lastRoutingTs = 0;
                 const now = Date.now();
-                const ROUTING_THROTTLE_MS = 200; // intervalle minimum entre recalculs
+                const ROUTING_THROTTLE_MS = 500; // minimum entre recalculs d'itinéraire (ms)
                 if (now - updatePosition._lastRoutingTs < ROUTING_THROTTLE_MS) return;
                 updatePosition._lastRoutingTs = now;
 
@@ -805,7 +810,7 @@
                 const p = map.latLngToContainerPoint(latlng);
                 const pOffset = L.point(p.x + offsetX, p.y + offsetY);
                 const latlngOffset = map.containerPointToLatLng(pOffset);
-                map.setView(latlngOffset, defaultZoom, { animate: true });
+                map.setView(latlngOffset, defaultZoom, { animate: false });
             } catch (e) { /* map pas prête ou erreur */ }
         }
 
@@ -1218,6 +1223,4 @@
     </script>
 </body>
 
-
 </html>
-
