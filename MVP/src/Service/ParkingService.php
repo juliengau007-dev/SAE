@@ -1,5 +1,5 @@
 <?php
-namespace V3\Service;
+namespace Service;
 
 /**
  * Service responsable de la récupération du GeoJSON distant (WFS).
