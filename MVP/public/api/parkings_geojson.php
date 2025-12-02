@@ -25,7 +25,7 @@ if ($wfs === null || $wfs === false) {
     if (file_exists($svcPath)) {
         require_once $svcPath;
         try {
-            $svc = new \V3\Service\ParkingService();
+            $svc = new \Service\ParkingService();
             $wfs = $svc->getGeoJson();
         } catch (Exception $e) {
             $wfs = false;
