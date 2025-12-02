@@ -11,9 +11,10 @@
 header('Content-Type: application/json; charset=utf-8');
 
 // Charger le service qui sait récupérer le GeoJSON (WFS distant)
-require_once __DIR__ . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . 'src' . DIRECTORY_SEPARATOR . 'Service' . DIRECTORY_SEPARATOR . 'ParkingService.php';
+$requirePath = __DIR__ . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . 'src' . DIRECTORY_SEPARATOR . 'Service' . DIRECTORY_SEPARATOR . 'ParkingService.php';
+require_once $requirePath;
 
-use V3\Service\ParkingService;
+use Service\ParkingService;
 
 $svc = new ParkingService();
 $data = $svc->getGeoJson();
