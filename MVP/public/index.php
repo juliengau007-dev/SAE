@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Carte des parkings</title>
+    <title>Loky</title>
     <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
     <link rel="stylesheet" href="https://unpkg.com/leaflet-routing-machine/dist/leaflet-routing-machine.css" />
     <style>
@@ -541,6 +541,7 @@
         // Indique si l'utilisateur interagit manuellement avec la carte
         // (éviter que l'auto-follow reprenne la main pendant une consultation)
         let _userInteracting = false;
+        let _userInteractingTime = 0;
 
         // --------- GESTION INTERFACE / PARAMETRES ---------
         // Ouvre le panneau de paramètres
@@ -652,7 +653,10 @@
                 // Détecter quand l'utilisateur interagit avec la carte afin de
                 // ne pas forcer le recentrage automatique pendant sa consultation.
                 map.on('movestart', () => { _userInteracting = true; });
-                map.on('moveend', () => { _userInteracting = false; });
+                map.on('moveend', () => { _userInteracting = false; _userInteractingTime = Date.now(); });
+                map.on('zoomstart', () => { _userInteracting = true; });
+                map.on('zoomend', () => { _userInteracting = false; _userInteractingTime = Date.now(); });
+
 
                 // contrôle d'itinéraire (Leaflet Routing Machine)
                 routingControl = L.Routing.control({
@@ -794,7 +798,7 @@
                     // uniquement si l'utilisateur n'est pas en train d'interagir
                     // avec la carte (évite de reprendre la main quand il consulte).
                     try {
-                        if (!_userInteracting) centerWithOffset(L.latLng(latlng[0], latlng[1]));
+                        if (!_userInteracting && (Date.now() - _userInteractingTime > 3000)) centerWithOffset(L.latLng(latlng[0], latlng[1]));
                     } catch (e) { /* ignore centering failures */ }
                 }
             } catch (e) { console.warn('updatePosition routing update', e); }
@@ -1088,6 +1092,8 @@
                 routingControl.setWaypoints([L.latLng(currentLat, currentLon), L.latLng(lat, lon)]);
                 document.querySelector(".leaflet-routing-container").style.display = "flex";
                 _currentTargetFid = fid;
+                const mg = document.querySelector('.menuGuider');
+                if (mg) mg.style.display = 'none';
                 loadParkings();
                 if (document.getElementById('metzToggle') && document.getElementById('metzToggle').checked) startMetzPolling(fid);
             } else {
@@ -1180,8 +1186,6 @@
                 }
                 const fid = nearest.properties?.fid || nearest.properties?.id || (nearest.id && !isNaN(parseInt(nearest.id)) ? parseInt(nearest.id) : null);
                 goToParking(nearest.geometry.coordinates[1], nearest.geometry.coordinates[0], fid);
-                const mg = document.querySelector('.menuGuider');
-                if (mg) mg.style.display = 'none';
             } catch (e) { console.warn('goToNearestParking', e); }
         }
 

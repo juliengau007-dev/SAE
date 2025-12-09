@@ -1,8 +1,7 @@
 <?php
-// Wrapper de compatibilité : redirige vers le nouvel endpoint
-// public/api/get_parkings.php. Conserve l'ancien chemin pour
-// les scripts qui l'appelaient encore.
+// Compat wrapper: use the new public API endpoint
+// This file is kept for backward compatibility. It includes the new API implementation.
 require_once __DIR__ . DIRECTORY_SEPARATOR . 'public' . DIRECTORY_SEPARATOR . 'api' . DIRECTORY_SEPARATOR . 'get_parkings.php';
 
-// fin
+// end of file
 ?>
