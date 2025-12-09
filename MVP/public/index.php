@@ -68,17 +68,15 @@
             right: 8px;
             z-index: 1003;
             display: flex;
+            flex-direction: column;
             gap: 6px;
-            align-items: center;
+            align-items: flex-end;
             pointer-events: auto;
         }
 
-        /* Centrer l'affichage de disponibilité Metz au milieu du panneau de routage */
+        /* Affichage de disponibilité Metz fixe sous le bouton de fermeture */
         .leaflet-routing-container .metz-availability {
-            position: absolute;
-            left: 50%;
-            top: 50%;
-            transform: translate(-50%, -50%);
+            position: relative;
             z-index: 1002;
             pointer-events: none;
             /* évite d'interférer avec les boutons */
@@ -866,7 +864,7 @@
          */
         function showMetzAvailability(text, cls = '') {
             try {
-                const container = document.querySelector('.leaflet-routing-container');
+                const container = document.querySelector('.leaflet-routing-container .routing-actions');
                 if (!container) return;
                 let el = container.querySelector('.metz-availability');
                 if (!el) { el = document.createElement('div'); el.className = 'metz-availability'; container.appendChild(el); }
@@ -988,7 +986,7 @@
                     clearInterval(_metzPollInterval);
                     _metzPollInterval = null;
                 }
-                const container = document.querySelector('.leaflet-routing-container');
+                const container = document.querySelector('.leaflet-routing-container .routing-actions');
                 if (container) {
                     const el = container.querySelector('.metz-availability');
                     if (el) el.remove();
