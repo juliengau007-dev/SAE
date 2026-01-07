@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="fr">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <title data-i18n="app_title">Loky</title>
+        <link
+            rel="stylesheet"
+            href="https://unpkg.com/leaflet/dist/leaflet.css"
+        />
+        <link
+            rel="stylesheet"
+            href="https://unpkg.com/leaflet-routing-machine/dist/leaflet-routing-machine.css"
+        />
+        <link rel="stylesheet" href="css/style.css" />
+    </head>
+
+    <body>
+        <div class="map-container">
+            <div id="map"></div>
+
+            <!-- Bloc de guidage centré en haut -->
+            <div class="top-center" id="guidage"></div>
+
+            <!-- Bouton de recentrage -->
+            <div class="bottom-left">
+                <button
+                    id="btnCentrer"
+                    data-i18n-title="btn_center_title"
+                    title="Centrer sur ma position"
+                >
+                    📍
+                </button>
+            </div>
+
+            <!-- Mode déplacement virtuel -->
+            <div
+                id="virtualMoveMode"
+                class="virtual-move-mode"
+                style="display: none"
+            >
+                <!-- Croix directionnelle -->
+                <div class="dpad-container">
+                    <button class="dpad-btn dpad-up" data-direction="up">
+                        ▲
+                    </button>
+                    <div class="dpad-middle">
+                        <button
+                            class="dpad-btn dpad-left"
+                            data-direction="left"
+                        >
+                            ◀
+                        </button>
+                        <div class="dpad-center"></div>
+                        <button
+                            class="dpad-btn dpad-right"
+                            data-direction="right"
+                        >
+                            ▶
+                        </button>
+                    </div>
+                    <button class="dpad-btn dpad-down" data-direction="down">
+                        ▼
+                    </button>
+                </div>
+                <!-- Menu de contrôle -->
+                <div class="virtual-move-controls">
+                    <div class="speed-control">
+                        <label data-i18n="virtual_speed">Vitesse</label>
+                        <input
+                            type="range"
+                            id="virtualSpeedSlider"
+                            min="1"
+                            max="10"
+                            value="5"
+                        >
+                        <span id="virtualSpeedValue">5</span>
+                    </div>
+                    <div class="home-controls">
+                        <button
+                            id="btnSetHome"
+                            class="btn-home"
+                            data-i18n="virtual_set_home"
+                            title="Définir comme maison"
+                        >
+                            🏠 Définir
+                        </button>
+                        <button
+                            id="btnGoHome"
+                            class="btn-home btn-home-go"
+                            data-i18n="virtual_go_home"
+                            title="Aller à la maison"
+                        >
+                            🏠 Aller
+                        </button>
+                    </div>
+                    <button
+                        id="btnExitVirtualMode"
+                        class="btn-exit-virtual"
+                        data-i18n="virtual_exit"
+                    >
+                        Quitter
+                    </button>
+                </div>
+            </div>
+
+            <!-- Guidage vers parking le plus proche -->
+            <div class="menuGuider bottom-center">
+                <h2 id="nearestParkingName"></h2>
+                <button
+                    id="btnGuider"
+                    onclick="goToNearestParking()"
+                    data-i18n-title="btn_go"
+                    data-i18n="btn_go"
+                    title="Allez"
+                >
+                    Allez
+                </button>
+            </div>
+
+            <!-- Bouton de paramètres en haut à droite -->
+            <div class="top-right">
+                <button id="parametre">⚙️</button>
+            </div>
+            <!-- 🔧 MENU PARAMÈTRES -->
+            <div id="menuParam">
+                <button class="close-btn" onclick="fermerMenu()">❌</button>
+                <h2 data-i18n="settings_title">Paramètres</h2>
+
+                <div class="settings-content">
+                    <!-- Sélecteur de langue -->
+                    <div class="settings-section settings-language">
+                        <div class="settings-row">
+                            <span data-i18n="settings_language">Langue</span>
+                            <select
+                                id="languageSelect"
+                                onchange="changeLanguage(this.value)"
+                            >
+                                <option value="fr">Français</option>
+                                <option value="en">English</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Section véhicules (visible uniquement si connecté) -->
+                    <div
+                        id="vehicleListSection"
+                        class="settings-section"
+                        style="display: none"
+                    >
+                        <div class="settings-row">
+                            <strong data-i18n="my_vehicles"
+                            >Mes véhicules</strong>
+                            <button
+                                id="btnAddVehicle"
+                                class="btn-small-add"
+                                title="Ajouter"
+                            >
+                                +
+                            </button>
+                        </div>
+                        <div id="vehicleList" class="vehicle-list"></div>
+                        <div
+                            id="noVehicleMsg"
+                            data-i18n="no_vehicle"
+                            class="no-vehicle-msg"
+                        >
+                            Aucun véhicule enregistré
+                        </div>
+                    </div>
+
+                    <!-- Paramètres invité: PMR, Hauteur max, Électrique (masqué si connecté) -->
+                    <div id="guestSettingsBlock" class="settings-section">
+                        <div class="settings-row">
+                            <span data-i18n="settings_pmr"
+                            >PMR (mobilité réduite)</span>
+                            <label class="switch">
+                                <input
+                                    type="checkbox"
+                                    id="pmrToggle"
+                                    onchange="togglePMR()"
+                                >
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+                        <div class="settings-row">
+                            <span data-i18n="settings_height"
+                            >Hauteur max (cm)</span>
+                            <input
+                                type="number"
+                                id="heightMax"
+                                data-i18n-placeholder="settings_height_placeholder"
+                                placeholder="ex: 200"
+                                class="input-small"
+                            >
+                        </div>
+                        <div class="settings-row">
+                            <span data-i18n="settings_electric"
+                            >Véhicules électriques</span>
+                            <label class="switch">
+                                <input type="checkbox" id="electricToggle">
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Paramètres communs (toujours visibles) -->
+                    <div class="settings-section">
+                        <div class="settings-row">
+                            <span data-i18n="settings_free_only"
+                            >Gratuit uniquement</span>
+                            <label class="switch">
+                                <input type="checkbox" id="payantToggle">
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Vérification disponibilité -->
+                    <div class="settings-section">
+                        <div class="settings-row">
+                            <span
+                                id="availabilityLabel"
+                                data-i18n="settings_availability"
+                            >Vérifier disponibilité</span>
+                            <label class="switch">
+                                <input type="checkbox" id="availabilityToggle">
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Spacer pour pousser les boutons en bas -->
+                    <div class="settings-spacer"></div>
+
+                    <!-- Boutons Connexion et Inscription (visible si non connecté) -->
+                    <div
+                        id="authButtonsContainer"
+                        class="settings-section settings-auth-buttons"
+                    >
+                        <button
+                            id="btnConnexion"
+                            data-i18n="btn_connexion"
+                            class="btn-auth"
+                        >
+                            Connexion
+                        </button>
+                        <button
+                            id="btnInscription"
+                            data-i18n="btn_inscription"
+                            class="btn-auth btn-auth-secondary"
+                        >
+                            Inscription
+                        </button>
+                    </div>
+
+                    <!-- Section utilisateur connecté (visible si connecté) -->
+                    <div
+                        id="userLoggedContainer"
+                        class="settings-section settings-user-logged"
+                        style="display: none"
+                    >
+                        <div class="user-info-row">
+                            <span id="loggedUserLabel" data-i18n="logged_in_as"
+                            >Connecté</span>
+                            <strong id="loggedUserName"></strong>
+                        </div>
+                        <button
+                            id="btnLogout"
+                            data-i18n="btn_logout"
+                            class="btn-logout"
+                        >
+                            Déconnexion
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal Auth (login / register) -->
+        <div id="authModal" class="modal-overlay">
+            <div class="modal-box" id="authBox">
+                <button id="authClose" class="close-btn">✖</button>
+                <h3 data-i18n="login_title" id="authTitle">Connexion</h3>
+                <div id="authError" class="auth-error" style="display: none">
+                </div>
+                <form id="authForm">
+                    <div class="modal-form-content">
+                        <label>
+                            <div data-i18n="email_label">Email</div>
+                            <input
+                                id="authEmail"
+                                type="email"
+                                required
+                                placeholder=""
+                                data-i18n-placeholder="email_placeholder"
+                                class="modal-input"
+                            >
+                        </label>
+                        <label>
+                            <div data-i18n="password_label">Mot de passe</div>
+                            <input
+                                id="authPassword"
+                                type="password"
+                                required
+                                placeholder=""
+                                data-i18n-placeholder="password_placeholder"
+                                class="modal-input"
+                            >
+                        </label>
+                        <!-- Champs supplémentaires pour inscription -->
+                        <div id="registerFields" style="display: none">
+                            <label>
+                                <div data-i18n="profile_name">Nom</div>
+                                <input
+                                    id="authName"
+                                    type="text"
+                                    placeholder=""
+                                    data-i18n-placeholder="profile_name_placeholder"
+                                    class="modal-input"
+                                >
+                            </label>
+                            <label
+                                style="display: flex; align-items: center; justify-content: space-between; margin-top: 8px"
+                            >
+                                <span data-i18n="profile_pmr">PMR</span>
+                                <label class="switch">
+                                    <input type="checkbox" id="authPmr">
+                                    <span class="slider"></span>
+                                </label>
+                            </label>
+                        </div>
+                        <div class="modal-buttons">
+                            <button
+                                id="authSubmit"
+                                type="submit"
+                                class="btn-primary"
+                            >
+                                Se connecter
+                            </button>
+                            <button
+                                id="authSwitch"
+                                type="button"
+                                class="btn-secondary"
+                            >
+                                Inscription
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Modal Véhicule -->
+        <div id="vehicleModal" class="modal-overlay">
+            <div class="modal-box" id="vehicleBox">
+                <button id="vehicleClose" class="close-btn">✖</button>
+                <h3 data-i18n="vehicle_title" id="vehicleTitle">
+                    Mon véhicule
+                </h3>
+                <div id="vehicleError" class="auth-error" style="display: none">
+                </div>
+                <form id="vehicleForm">
+                    <div class="modal-form-content">
+                        <label>
+                            <div data-i18n="vehicle_plate">
+                                Plaque d'immatriculation
+                            </div>
+                            <input
+                                id="vehiclePlate"
+                                type="text"
+                                placeholder=""
+                                data-i18n-placeholder="vehicle_plate_placeholder"
+                                class="modal-input"
+                            >
+                        </label>
+                        <label>
+                            <div data-i18n="vehicle_height">Hauteur (cm)</div>
+                            <input
+                                id="vehicleHeight"
+                                type="number"
+                                placeholder=""
+                                data-i18n-placeholder="vehicle_height_placeholder"
+                                class="modal-input"
+                            >
+                        </label>
+                        <label
+                            style="display: flex; align-items: center; justify-content: space-between; margin-top: 8px"
+                        >
+                            <span data-i18n="vehicle_electric"
+                            >Véhicule électrique</span>
+                            <label class="switch">
+                                <input type="checkbox" id="vehicleElectric">
+                                <span class="slider"></span>
+                            </label>
+                        </label>
+                        <label
+                            style="display: flex; align-items: center; justify-content: space-between; margin-top: 8px"
+                        >
+                            <span data-i18n="vehicle_velo">Vélo</span>
+                            <label class="switch">
+                                <input type="checkbox" id="vehicleVelo">
+                                <span class="slider"></span>
+                            </label>
+                        </label>
+                        <div class="modal-buttons">
+                            <button
+                                id="vehicleSave"
+                                type="submit"
+                                class="btn-primary"
+                                data-i18n="vehicle_save"
+                            >
+                                Enregistrer
+                            </button>
+                            <button
+                                id="vehicleDelete"
+                                type="button"
+                                class="btn-danger"
+                                data-i18n="vehicle_delete"
+                                style="display: none"
+                            >
+                                Supprimer
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+        <script
+            src="https://unpkg.com/leaflet-routing-machine/dist/leaflet-routing-machine.min.js"
+        ></script>
+
+        <script src="js/i18n.js?v=1.0"></script>
+        <script src="js/providers/cities.js?v=1.2"></script>
+        <script src="js/main.js?v=1.2"></script>
+        <script src="js/utils.js?v=1.2"></script>
+        <script src="js/api.js?v=1.2"></script>
+        <script src="js/map.js?v=1.2"></script>
+        <script src="js/ui.js?v=1.2"></script>
+    </body>
+</html>

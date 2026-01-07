@@ -1,0 +1,1146 @@
+/* Base layout */
+/* Use border-box everywhere to make %/padding sizing predictable */
+*,
+*:before,
+*:after {
+    box-sizing: border-box;
+}
+
+html,
+body {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    width: 100%;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+}
+
+.map-container {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    width: 100%;
+    position: relative;
+}
+
+#map {
+    flex: 1;
+    height: 100%;
+    width: 100%;
+    min-height: 200px;
+}
+
+/* Top centered guidance container */
+.top-center {
+    position: absolute;
+    top: 20px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1001;
+    pointer-events: none;
+    width: 40%;
+    left: 30%;
+}
+
+/* Leaflet routing panel adjustments */
+.leaflet-routing-container {
+    pointer-events: auto;
+    display: none;
+    position: relative;
+    /* permet le positionnement absolu des éléments internes */
+}
+
+/* Place les actions (bouton quitter, etc.) en haut à droite du panneau de routage */
+.leaflet-routing-container .routing-actions {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    z-index: 1003;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    align-items: flex-end;
+    pointer-events: auto;
+}
+
+/* Affichage de disponibilité Metz fixe sous le bouton de fermeture */
+.leaflet-routing-container .metz-availability {
+    position: relative;
+    z-index: 1002;
+    pointer-events: none;
+    /* évite d'interférer avec les boutons */
+    background: rgba(255, 255, 255, 0.95);
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
+    padding: 6px 10px;
+    border-radius: 6px;
+    font-weight: 600;
+}
+
+.leaflet-routing-container .leaflet-routing-alt>table tr:not(:first-child) {
+    display: none;
+}
+
+.leaflet-routing-collapse-btn {
+    display: none;
+}
+
+/* Bottom-left recenter button container */
+.bottom-left {
+    bottom: 2%;
+    left: 1%;
+    position: fixed;
+    z-index: 1002;
+    display: flex;
+    justify-content: flex-end;
+    align-items: flex-end;
+}
+
+#btnCentrer {
+    border-radius: 50%;
+    border: none;
+    background-color: white;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+    cursor: pointer;
+    font-size: 22px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+#btnCentrer:hover {
+    transform: scale(1.05);
+}
+
+.routing-actions {
+    display: flex;
+    gap: 6px;
+    align-items: center;
+}
+
+.routing-actions .small-btn {
+    width: 34px;
+    height: 34px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 6px;
+    border: none;
+    background: #fff;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.15);
+    cursor: pointer;
+    font-size: 16px;
+}
+
+.routing-actions .small-btn:hover {
+    transform: scale(1.05);
+}
+
+.metz-availability {
+    font-size: 14px;
+    font-weight: 600;
+    padding: 4px 8px;
+    border-radius: 4px;
+    height: 28%;
+}
+
+/* Metz availability display */
+.routing-actions .metz-availability {
+    align-items: center;
+    padding: 6px 10px;
+    margin-left: 8px;
+    background: rgba(255, 255, 255, 0.9);
+    border-radius: 6px;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
+    font-size: 14px;
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+
+
+/* Top-right parameter button */
+.top-right {
+    position: fixed;
+    z-index: 1002;
+    display: flex;
+    justify-content: flex-end;
+    align-items: flex-end;
+}
+
+#parametre {
+    border-radius: 10%;
+    border: none;
+    background-color: white;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+    cursor: pointer;
+    font-size: 22px;
+}
+
+/* Settings panel */
+#menuParam {
+    display: none;
+    position: fixed;
+    background-color: rgba(255, 255, 255, 0.98);
+    box-shadow: -4px 0 20px rgba(0, 0, 0, 0.2);
+    z-index: 2000;
+    padding: 20px;
+    flex-direction: column;
+    animation: slideIn 0.3s ease;
+    overflow: hidden;
+    border-radius: 12px;
+}
+
+#menuParam h2 {
+    margin: 0 0 16px 0;
+    text-align: center;
+    font-size: 1.3em;
+    padding-bottom: 12px;
+    border-bottom: 2px solid #007bff;
+}
+
+/* Settings content container */
+.settings-content {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    height: calc(100% - 60px);
+    overflow-y: auto;
+    padding-right: 4px;
+}
+
+.settings-section {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding: 12px;
+    background: #f8f9fa;
+    border-radius: 8px;
+}
+
+.settings-section.settings-language {
+    background: transparent;
+    padding: 0 0 12px 0;
+    border-bottom: 1px solid #eee;
+}
+
+.settings-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    min-height: 32px;
+}
+
+.settings-row span {
+    flex: 1;
+    font-size: 14px;
+}
+
+.settings-row select {
+    padding: 6px 10px;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+    font-size: 14px;
+    min-width: 100px;
+}
+
+.input-small {
+    width: 90px;
+    padding: 6px 10px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    font-size: 14px;
+    text-align: right;
+}
+
+.input-small:focus {
+    outline: none;
+    border-color: #007bff;
+}
+
+/* Spacer to push auth buttons to bottom */
+.settings-spacer {
+    flex: 1;
+    min-height: 8px;
+}
+
+/* Auth buttons */
+.settings-auth-buttons {
+    display: flex !important;
+    flex-direction: row !important;
+    gap: 8px;
+    background: transparent;
+    padding: 0;
+    margin-top: auto;
+}
+
+.btn-auth {
+    flex: 1;
+    padding: 10px 16px;
+    border: none;
+    border-radius: 8px;
+    background: #007bff;
+    color: #fff;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.btn-auth:hover {
+    background: #0056b3;
+    transform: translateY(-1px);
+}
+
+.btn-auth-secondary {
+    background: #6c757d;
+}
+
+.btn-auth-secondary:hover {
+    background: #545b62;
+}
+
+/* User logged section */
+.settings-user-logged {
+    background: linear-gradient(135deg, #e8f4fd 0%, #f0f7ff 100%);
+    border: 1px solid #b8daff;
+    margin-top: auto;
+}
+
+.user-info-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    padding: 4px 0;
+}
+
+.user-info-row span {
+    color: #666;
+    font-size: 13px;
+}
+
+.user-info-row strong {
+    color: #007bff;
+    font-size: 14px;
+    max-width: 150px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.btn-logout {
+    width: 100%;
+    padding: 10px;
+    border: none;
+    border-radius: 6px;
+    background: #dc3545;
+    color: #fff;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.btn-logout:hover {
+    background: #c82333;
+}
+
+.no-vehicle-msg {
+    color: #888;
+    font-size: 13px;
+    text-align: center;
+    padding: 8px;
+    display: none;
+}
+
+.close-btn {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    font-size: 18px;
+    cursor: pointer;
+    border: none;
+    background: none;
+    padding: 4px;
+    opacity: 0.6;
+    transition: opacity 0.2s;
+}
+
+.close-btn:hover {
+    opacity: 1;
+}
+
+/* Toggle switch */
+.switch {
+    position: relative;
+    display: inline-block;
+    width: 50px;
+    height: 24px;
+    flex-shrink: 0;
+}
+
+.switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #ccc;
+    border-radius: 34px;
+    transition: .4s;
+}
+
+.slider:before {
+    position: absolute;
+    content: "";
+    height: 18px;
+    width: 18px;
+    left: 4px;
+    bottom: 3px;
+    background-color: white;
+    border-radius: 50%;
+    transition: .4s;
+}
+
+input:checked+.slider {
+    background-color: #007bff;
+}
+
+input:checked+.slider:before {
+    transform: translateX(26px);
+}
+
+.pmr-label {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+/* Bottom centered guidance menu */
+.menuGuider {
+    position: fixed;
+    bottom: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 1002;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+    border-radius: 10px;
+    background-color: rgba(255, 255, 255, 0.8);
+    border: 1px solid rgba(0, 0, 0, 0.12);
+}
+
+.menuGuider h2 {
+    margin: 0;
+    font-size: 1.2em;
+    text-align: center;
+}
+
+.menuGuider button {
+    padding: 8px 12px;
+    border: none;
+    border-radius: 5px;
+    background-color: white;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.18);
+    cursor: pointer;
+}
+
+.menuGuider button:hover {
+    transform: scale(1.05);
+}
+
+/* Settings pane spacing */
+#menuParam h3,
+#menuParam h4 {
+    margin: 8px 0 6px;
+    font-weight: 600;
+}
+
+#menuParam label {
+    display: block;
+    margin-bottom: 6px;
+}
+
+#menuParam>* {
+    margin-bottom: 8px;
+}
+
+/* Small utility buttons colors */
+#btnGuider {
+    background-color: rgba(78, 123, 30, 0.8);
+}
+
+#btnFermer {
+    background-color: rgba(197, 35, 51, 0.8);
+}
+
+#btnCentrer {
+    font-size: 18px;
+}
+
+.top-right {
+    top: 1%;
+    right: 1%;
+}
+
+/* Desktop menu positioning */
+#menuParam {
+    top: 10%;
+    right: 5%;
+    width: 380px;
+    max-width: 90%;
+    height: auto;
+    max-height: 80vh;
+}
+
+.menuGuider {
+    width: 30%;
+    padding: 12px;
+    left: 50%;
+    transform: translateX(-50%);
+    box-sizing: border-box;
+    bottom: 3%;
+}
+
+/* Responsive breakpoints */
+@media (max-width: 1024px) {
+    #menuParam {
+        top: 8%;
+        right: 3%;
+        width: 350px;
+        max-height: 84vh;
+    }
+}
+
+@media (max-width: 768px) {
+    .top-center {
+        left: 10%;
+        width: 80%;
+        pointer-events: auto;
+        z-index: 1005;
+    }
+
+    .bottom-left {
+        bottom: 3%;
+        left: 2%;
+        z-index: 1005;
+    }
+
+    #btnCentrer {
+        font-size: 20px;
+        padding: 0;
+    }
+
+    .top-right {
+        bottom: 3%;
+        right: 2%;
+        z-index: 1005;
+    }
+
+    #parametre {
+        font-size: 20px;
+    }
+
+    #menuParam {
+        top: auto;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        width: 100%;
+        max-width: 100%;
+        height: 75vh;
+        max-height: 75vh;
+        border-radius: 20px 20px 0 0;
+        padding: 16px;
+    }
+
+    #menuParam h2 {
+        font-size: 1.1em;
+        margin-bottom: 12px;
+        padding-bottom: 10px;
+    }
+
+    .settings-content {
+        height: calc(100% - 50px);
+    }
+
+    .settings-section {
+        padding: 10px;
+    }
+
+    .settings-row {
+        min-height: 36px;
+    }
+
+    .settings-row span {
+        font-size: 13px;
+    }
+
+    .vehicle-list {
+        max-height: 120px;
+    }
+
+    .vehicle-item {
+        padding: 6px 8px;
+    }
+
+    .vehicle-item-plate {
+        font-size: 13px;
+    }
+
+    .btn-auth {
+        padding: 12px;
+        font-size: 13px;
+    }
+
+    .btn-logout {
+        padding: 12px;
+    }
+
+    .menuGuider {
+        height: auto;
+        width: 70%;
+        flex-wrap: wrap;
+    }
+
+    .menuGuider h2 {
+        flex: 1 1 60%;
+        font-size: 1em;
+        margin-right: 8px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    .menuGuider button {
+        flex: 0 0 36%;
+        max-width: 36%;
+        min-width: 90px;
+        padding: 8px 10px;
+        font-size: 16px;
+        box-sizing: border-box;
+    }
+
+    .leaflet-routing-container {
+        left: 5%;
+    }
+
+    /* Modal responsive */
+    .modal-box {
+        width: 95% !important;
+        max-width: 95% !important;
+        margin: 10px;
+    }
+}
+
+/* ========================================
+   MODAL STYLES
+   ======================================== */
+.modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.5);
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+}
+
+.modal-box {
+    background: #fff;
+    padding: 20px;
+    width: 340px;
+    max-width: 90%;
+    border-radius: 12px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+    position: relative;
+    animation: modalSlideIn 0.25s ease;
+}
+
+@keyframes modalSlideIn {
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.modal-box h3 {
+    margin: 0 0 16px 0;
+    font-size: 1.3em;
+    text-align: center;
+}
+
+.modal-form-content {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.modal-input {
+    width: 100%;
+    padding: 10px 12px;
+    margin-top: 4px;
+    box-sizing: border-box;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    font-size: 14px;
+    transition: border-color 0.2s;
+}
+
+.modal-input:focus {
+    outline: none;
+    border-color: #007bff;
+}
+
+.modal-buttons {
+    display: flex;
+    gap: 10px;
+    margin-top: 16px;
+}
+
+.btn-primary {
+    flex: 1;
+    padding: 10px 16px;
+    border: none;
+    border-radius: 6px;
+    background: #007bff;
+    color: #fff;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.btn-primary:hover {
+    background: #0056b3;
+}
+
+.btn-secondary {
+    flex: 1;
+    padding: 10px 16px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    background: #fff;
+    color: #333;
+    font-size: 14px;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.btn-secondary:hover {
+    background: #f0f0f0;
+}
+
+.btn-danger {
+    flex: 1;
+    padding: 10px 16px;
+    border: none;
+    border-radius: 6px;
+    background: #dc3545;
+    color: #fff;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.btn-danger:hover {
+    background: #c82333;
+}
+
+.auth-error {
+    background: #ffe0e0;
+    color: #c00;
+    padding: 8px 12px;
+    border-radius: 6px;
+    margin-bottom: 12px;
+    font-size: 13px;
+    text-align: center;
+}
+
+/* User logged section styling */
+#userLoggedContainer button {
+    cursor: pointer;
+    border: none;
+    font-size: 13px;
+}
+
+#btnLogout:hover {
+    background: #bd2130;
+}
+
+/* ========================================
+   VEHICLE LIST STYLES
+   ======================================== */
+.vehicle-list {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    max-height: 180px;
+    overflow-y: auto;
+}
+
+.vehicle-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 10px;
+    background: #f8f9fa;
+    border-radius: 6px;
+    border: 2px solid transparent;
+    transition: all 0.2s;
+}
+
+.vehicle-item.selected {
+    border-color: #007bff;
+    background: #e7f1ff;
+}
+
+.vehicle-item-info {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    min-width: 0;
+}
+
+.vehicle-item-plate {
+    font-weight: 600;
+    font-size: 14px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.vehicle-item-details {
+    font-size: 12px;
+    color: #666;
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.vehicle-item-badge {
+    display: inline-block;
+    padding: 1px 5px;
+    border-radius: 3px;
+    font-size: 10px;
+    font-weight: 600;
+}
+
+.vehicle-item-badge.electric {
+    background: #d4edda;
+    color: #155724;
+}
+
+.vehicle-item-badge.velo {
+    background: #cce5ff;
+    color: #004085;
+}
+
+.vehicle-item-actions {
+    display: flex;
+    gap: 4px;
+    margin-left: 8px;
+}
+
+.vehicle-item-actions button {
+    padding: 4px 8px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 12px;
+    transition: background 0.2s;
+}
+
+.btn-select {
+    background: #007bff;
+    color: #fff;
+}
+
+.btn-select:hover {
+    background: #0056b3;
+}
+
+.btn-select.active {
+    background: #28a745;
+}
+
+.btn-edit {
+    background: #6c757d;
+    color: #fff;
+}
+
+.btn-edit:hover {
+    background: #545b62;
+}
+
+.btn-small-add {
+    width: 28px;
+    height: 28px;
+    border: none;
+    border-radius: 50%;
+    background: #28a745;
+    color: #fff;
+    font-size: 18px;
+    font-weight: bold;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.2s;
+}
+
+.btn-small-add:hover {
+    background: #218838;
+}
+
+/* ========================================
+   VIRTUAL MOVEMENT MODE
+   ======================================== */
+.virtual-move-mode {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    z-index: 3000;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 12px;
+}
+
+/* D-Pad Container */
+.dpad-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0;
+    background: rgba(255, 255, 255, 0.95);
+    padding: 8px;
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
+}
+
+.dpad-middle {
+    display: flex;
+    align-items: center;
+    gap: 0;
+}
+
+.dpad-btn {
+    width: 50px;
+    height: 50px;
+    border: none;
+    background: #007bff;
+    color: #fff;
+    font-size: 20px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.15s;
+    user-select: none;
+    -webkit-user-select: none;
+    touch-action: manipulation;
+}
+
+.dpad-btn:hover {
+    background: #0056b3;
+}
+
+.dpad-btn:active {
+    background: #004085;
+    transform: scale(0.95);
+}
+
+.dpad-up {
+    border-radius: 8px 8px 0 0;
+}
+
+.dpad-down {
+    border-radius: 0 0 8px 8px;
+}
+
+.dpad-left {
+    border-radius: 8px 0 0 8px;
+}
+
+.dpad-right {
+    border-radius: 0 8px 8px 0;
+}
+
+.dpad-center {
+    width: 50px;
+    height: 50px;
+    background: #e9ecef;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Virtual Move Controls */
+.virtual-move-controls {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    background: rgba(255, 255, 255, 0.95);
+    padding: 12px 16px;
+    border-radius: 10px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
+    min-width: 160px;
+}
+
+.speed-control {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+}
+
+.speed-control label {
+    font-weight: 600;
+    color: #333;
+    white-space: nowrap;
+}
+
+.speed-control input[type="range"] {
+    flex: 1;
+    height: 6px;
+    cursor: pointer;
+    accent-color: #007bff;
+}
+
+.speed-control span {
+    min-width: 20px;
+    text-align: center;
+    font-weight: bold;
+    color: #007bff;
+}
+
+.btn-exit-virtual {
+    padding: 10px 16px;
+    border: none;
+    border-radius: 8px;
+    background: #dc3545;
+    color: #fff;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.btn-exit-virtual:hover {
+    background: #c82333;
+}
+
+/* Home position buttons */
+.home-controls {
+    display: flex;
+    gap: 6px;
+    margin-bottom: 8px;
+}
+
+.btn-home {
+    flex: 1;
+    padding: 8px 10px;
+    border: none;
+    border-radius: 6px;
+    background: #28a745;
+    color: #fff;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    white-space: nowrap;
+}
+
+.btn-home:hover {
+    background: #218838;
+}
+
+.btn-home-go {
+    background: #17a2b8;
+}
+
+.btn-home-go:hover {
+    background: #138496;
+}
+
+/* Toast notification */
+.virtual-toast {
+    position: fixed;
+    bottom: 100px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(0, 0, 0, 0.85);
+    color: #fff;
+    padding: 12px 24px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 500;
+    z-index: 9999;
+    transition: opacity 0.3s ease;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+/* Responsive for virtual mode */
+@media (max-width: 768px) {
+    .virtual-move-mode {
+        bottom: 80px;
+        right: 10px;
+    }
+
+    .dpad-btn {
+        width: 44px;
+        height: 44px;
+        font-size: 18px;
+    }
+
+    .dpad-center {
+        width: 44px;
+        height: 44px;
+    }
+
+    .virtual-move-controls {
+        padding: 10px 12px;
+        min-width: 140px;
+    }
+
+    .speed-control {
+        font-size: 12px;
+    }
+
+    .btn-exit-virtual {
+        padding: 8px 12px;
+        font-size: 13px;
+    }
+
+    .btn-home {
+        padding: 6px 8px;
+        font-size: 11px;
+    }
+
+    .virtual-toast {
+        bottom: 160px;
+        padding: 10px 18px;
+        font-size: 13px;
+    }
+}
