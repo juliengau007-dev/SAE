@@ -1,5 +1,80 @@
 // map.js
 /**
+ * createParkingPopup()
+ * Crée le HTML pour la popup personnalisée d'un parking
+ */
+function createParkingPopup(name, isFree, availableSpots, hasElectric, hasPMR, lat, lon, fid) {
+    const tFree = typeof t === "function" ? t("popup_free") : "Gratuit";
+    const tPaid = typeof t === "function" ? t("popup_paid") : "Payant";
+    const tUnspecified = typeof t === "function" ? t("popup_cost_unspecified") : "Non spécifié";
+    const tElectric = typeof t === "function" ? t("popup_electric") : "Électrique";
+    const tPMR = typeof t === "function" ? t("popup_pmr") : "PMR";
+    const tPlaces = typeof t === "function" ? t("places_label") : "places";
+    const tActivateGuidance = typeof t === "function" ? t("popup_activate_guidance") : "Activer le guidage";
+    const tAddFavorite = typeof t === "function" ? t("popup_add_favorite") : "Ajouter aux favoris";
+    
+    const costLabel = isFree === true 
+        ? `<span class="parking-popup-badge free">🆓 ${tFree}</span>`
+        : isFree === false 
+            ? `<span class="parking-popup-badge paid">💳 ${tPaid}</span>`
+            : `<span class="parking-popup-badge">❓ ${tUnspecified}</span>`;
+    
+    const spotsLabel = availableSpots 
+        ? `<div class="parking-popup-row">
+            <span class="parking-popup-icon">🅿️</span>
+            <span><strong>${availableSpots}</strong> ${tPlaces}</span>
+          </div>`
+        : '';
+    
+    const features = [];
+    if (hasElectric) {
+        features.push(`<div class="parking-popup-feature"><span class="parking-popup-feature-icon">⚡</span><span>${tElectric}</span></div>`);
+    }
+    if (hasPMR) {
+        features.push(`<div class="parking-popup-feature"><span class="parking-popup-feature-icon">♿</span><span>${tPMR}</span></div>`);
+    }
+    
+    const featuresHtml = features.length > 0 
+        ? `<div class="parking-popup-features">${features.join('')}</div>`
+        : '';
+    
+    return `
+        <div class="parking-popup">
+            <div class="parking-popup-header">
+                <div class="parking-popup-title">${name}</div>
+                <button class="parking-popup-favorite" onclick="toggleFavorite(event, ${JSON.stringify(fid)})" title="${tAddFavorite}">
+                    ⭐
+                </button>
+            </div>
+            
+            <div class="parking-popup-info">
+                <div class="parking-popup-row">
+                    ${costLabel}
+                </div>
+                ${spotsLabel}
+                ${featuresHtml}
+            </div>
+            
+            <div class="parking-popup-actions">
+                <button class="parking-popup-btn-navigate" onclick="goToParking(${lat}, ${lon}, ${JSON.stringify(fid)})">
+                    <span>${tActivateGuidance}</span>
+                </button>
+            </div>
+        </div>
+    `;
+}
+
+/**
+ * toggleFavorite()
+ * Fonction placeholder pour la gestion des favoris (à implémenter plus tard)
+ */
+function toggleFavorite(event, fid) {
+    event.stopPropagation();
+    console.log('Toggle favorite for parking:', fid);
+    // TODO: Implémenter la fonctionnalité des favoris
+}
+
+/**
  * initApp()
  * Initialise la carte et la géolocalisation, détecte la ville la plus proche
  */
@@ -424,56 +499,56 @@ async function loadParkings() {
                 }
                 fid = fid || 0;
 
+                // Get cost information
+                let isFree = null;
+                const coutVal = props.cout ?? props.Cout ?? null;
+                if (coutVal !== null && coutVal !== undefined) {
+                    try {
+                        const s = String(coutVal).toLowerCase().trim();
+                        if (s === "gratuit") isFree = true;
+                        else if (s === "payant") isFree = false;
+                    } catch (e) {}
+                }
+                if (isFree === null) {
+                    const isFreeVal = props.is_free ?? props.isFree ?? null;
+                    if (isFreeVal !== null && isFreeVal !== undefined) {
+                        isFree = Number(isFreeVal) === 1;
+                    } else {
+                        const hasCost = (props.cost_1h || props.cost_2h || props.price || props.tarif) ? true : false;
+                        isFree = !hasCost;
+                    }
+                }
+
+                // Get available spots
                 let availText = "";
-                const avail = feature.properties?._availability;
-                if (avail) {
-                    if (avail.value != null) {
-                        availText = (typeof t === "function"
-                            ? t("places_label")
-                            : "Places") + ": " + avail.value;
-                    } else {availText = typeof t === "function"
-                            ? t("info_available")
-                            : "Info disponible";}
+                const avail = props._availability;
+                if (avail && avail.value != null) {
+                    availText = avail.value;
                 } else {
-                    const p = feature.properties || {};
                     const knownKeys = cityCfg.availabilityKeys || [
-                        "available",
-                        "free",
-                        "places",
-                        "disponible",
-                        "nb_places",
+                        "available", "free", "places", "disponible", "nb_places",
                     ];
                     for (const k of knownKeys) {
-                        if (p[k] !== undefined && p[k] !== null) {
-                            availText = (typeof t === "function"
-                                ? t("places_label")
-                                : "Places") + ": " + p[k];
+                        if (props[k] !== undefined && props[k] !== null) {
+                            availText = props[k];
                             break;
                         }
                     }
                 }
 
-                const popupHtml = `
-                    <div style="display:flex;flex-direction:column;gap:6px;max-width:240px;">
-                        <div style="font-weight:700">${nom}</div>
-                        ${
-                    availText
-                        ? (`<div style="font-size:0.95em;color:#333">${availText}</div>`)
-                        : ""
-                }
-                        <div style="display:flex;justify-content:center;">
-                            <button title="${
-                    typeof t === "function" ? t("route_title") : "Itinéraire"
-                }" style="width:36px;height:32px;border-radius:6px;border:none;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,0.15);cursor:pointer;font-size:16px;" onclick='goToParking(${
-                    feature.geometry.coordinates[1]
-                }, ${feature.geometry.coordinates[0]}, ${
-                    JSON.stringify(fid)
-                })'>➡️</button>
-                        </div>
-                    </div>
-                `;
+                // Check for electric spots
+                const hasElectric = !!(props.electrique || props.electrique_capable || props.electrique_spots);
 
-                layer.bindPopup(popupHtml);
+                // Check for PMR access
+                const hasPMR = !!(props.pmr || props.access_xpmr || props.pmr_accessible);
+
+                const popupHtml = createParkingPopup(nom, isFree, availText, hasElectric, hasPMR, 
+                    feature.geometry.coordinates[1], feature.geometry.coordinates[0], fid);
+
+                layer.bindPopup(popupHtml, {
+                    maxWidth: 320,
+                    className: 'custom-parking-popup'
+                });
             },
         }).addTo(map);
         // Après le chargement des parkings, mettre à jour le message de guidage

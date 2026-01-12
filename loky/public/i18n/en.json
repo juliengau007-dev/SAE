@@ -93,5 +93,12 @@
     "virtual_go_home": "Go",
     "home_position_saved": "Home position saved!",
     "home_position_go": "Moved to home position",
-    "home_position_not_set": "No home position set"
+    "home_position_not_set": "No home position set",
+    "popup_free": "Free",
+    "popup_paid": "Paid",
+    "popup_cost_unspecified": "Unspecified",
+    "popup_electric": "Electric",
+    "popup_pmr": "Disabled access",
+    "popup_activate_guidance": "Directions",
+    "popup_add_favorite": "Add to favorites"
 }

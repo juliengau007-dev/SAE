@@ -93,5 +93,12 @@
     "virtual_go_home": "Aller",
     "home_position_saved": "Position maison enregistrée !",
     "home_position_go": "Déplacé vers la position maison",
-    "home_position_not_set": "Aucune position maison définie"
+    "home_position_not_set": "Aucune position maison définie",
+    "popup_free": "Gratuit",
+    "popup_paid": "Payant",
+    "popup_cost_unspecified": "Non spécifié",
+    "popup_electric": "Électrique",
+    "popup_pmr": "PMR",
+    "popup_activate_guidance": "Itinéraires",
+    "popup_add_favorite": "Ajouter aux favoris"
 }
