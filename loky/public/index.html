@@ -148,9 +148,11 @@
                         class="settings-section"
                         style="display: none"
                     >
-                        <div class="settings-row">
-                            <strong data-i18n="my_vehicles"
-                            >Mes véhicules</strong>
+                        <div class="settings-row collapsible-header" data-target="vehicleListContent">
+                            <span>
+                                <span class="chevron">▼</span>
+                                <strong data-i18n="my_vehicles">Mes véhicules</strong>
+                            </span>
                             <button
                                 id="btnAddVehicle"
                                 class="btn-small-add"
@@ -159,13 +161,39 @@
                                 +
                             </button>
                         </div>
-                        <div id="vehicleList" class="vehicle-list"></div>
-                        <div
-                            id="noVehicleMsg"
-                            data-i18n="no_vehicle"
-                            class="no-vehicle-msg"
-                        >
-                            Aucun véhicule enregistré
+                        <div id="vehicleListContent" class="collapsible-content">
+                                <div id="vehicleList" class="vehicle-list"></div>
+                            <div
+                                id="noVehicleMsg"
+                                data-i18n="no_vehicle"
+                                class="no-vehicle-msg"
+                            >
+                                Aucun véhicule enregistré
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Section parkings enregistrés (visible uniquement si connecté) -->
+                    <div
+                        id="savedParkingListSection"
+                        class="settings-section"
+                        style="display: none"
+                    >
+                        <div class="settings-row collapsible-header" data-target="savedParkingsContent">
+                            <span>
+                                <span class="chevron">▼</span>
+                                <strong data-i18n="saved_parkings">Enregistrés</strong>
+                            </span>
+                        </div>
+                        <div id="savedParkingsContent" class="collapsible-content">
+                            <div id="savedParkingsList" class="vehicle-list"></div>
+                            <div
+                                id="noSavedParkingsMsg"
+                                data-i18n="no_saved_parkings"
+                                class="no-vehicle-msg"
+                            >
+                                Aucun parking enregistré
+                            </div>
                         </div>
                     </div>
 
@@ -204,29 +232,29 @@
                         </div>
                     </div>
 
-                    <!-- Paramètres communs (toujours visibles) -->
+                    <!-- Section Filtres (collapsible) -->
                     <div class="settings-section">
-                        <div class="settings-row">
-                            <span data-i18n="settings_free_only"
-                            >Gratuit uniquement</span>
-                            <label class="switch">
-                                <input type="checkbox" id="payantToggle">
-                                <span class="slider"></span>
-                            </label>
+                        <div class="settings-row collapsible-header" data-target="filtersContent">
+                            <span>
+                                <span class="chevron">▼</span>
+                                <strong data-i18n="settings_filters">Filtres</strong>
+                            </span>
                         </div>
-                    </div>
-
-                    <!-- Vérification disponibilité -->
-                    <div class="settings-section">
-                        <div class="settings-row">
-                            <span
-                                id="availabilityLabel"
-                                data-i18n="settings_availability"
-                            >Vérifier disponibilité</span>
-                            <label class="switch">
-                                <input type="checkbox" id="availabilityToggle">
-                                <span class="slider"></span>
-                            </label>
+                        <div id="filtersContent" class="collapsible-content">
+                            <div class="settings-row">
+                                <span data-i18n="settings_free_only">Gratuit uniquement</span>
+                                <label class="switch">
+                                    <input type="checkbox" id="payantToggle">
+                                    <span class="slider"></span>
+                                </label>
+                            </div>
+                            <div class="settings-row">
+                                <span id="availabilityLabel" data-i18n="settings_availability">Vérifier disponibilité</span>
+                                <label class="switch">
+                                    <input type="checkbox" id="availabilityToggle">
+                                    <span class="slider"></span>
+                                </label>
+                            </div>
                         </div>
                     </div>
 
@@ -237,6 +265,7 @@
                     <div
                         id="authButtonsContainer"
                         class="settings-section settings-auth-buttons"
+                        style="display: none;"
                     >
                         <button
                             id="btnConnexion"
@@ -351,6 +380,51 @@
             </div>
         </div>
 
+        <!-- Modal Parking Favori -->
+        <div id="saveParkingModal" class="modal-overlay">
+            <div class="modal-box">
+                <button id="saveParkingClose" class="close-btn">✖</button>
+                <h3 data-i18n="save_parking_title">Enregistrer le parking</h3>
+                <div id="saveParkingError" class="auth-error" style="display: none"></div>
+                <form id="saveParkingForm">
+                    <div class="modal-form-content">
+                        <label>
+                            <div data-i18n="save_parking_name">Nom personnalisé</div>
+                            <input
+                                id="parkingCustomName"
+                                type="text"
+                                placeholder=""
+                                data-i18n-placeholder="save_parking_name_placeholder"
+                                class="modal-input"
+                                required
+                            >
+                        </label>
+                        <label>
+                            <div data-i18n="save_parking_note">Note / Description</div>
+                            <textarea
+                                id="parkingNote"
+                                placeholder=""
+                                data-i18n-placeholder="save_parking_note_placeholder"
+                                class="modal-input"
+                                rows="3"
+                            ></textarea>
+                        </label>
+                    </div>
+                    <div class="modal-buttons">
+                        <button type="submit" class="btn-primary" data-i18n="save_parking_save">
+                            Enregistrer
+                        </button>
+                        <button type="button" id="btnCancelSaveParking" class="btn-secondary" data-i18n="close">
+                            Annuler
+                        </button>
+                        <button type="button" id="btnDeleteSavedParking" class="btn-danger" data-i18n="save_parking_delete" style="display: none">
+                            Supprimer
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
         <!-- Modal Véhicule -->
         <div id="vehicleModal" class="modal-overlay">
             <div class="modal-box" id="vehicleBox">
@@ -434,6 +508,7 @@
 
         <script src="js/i18n.js?v=1.0"></script>
         <script src="js/providers/cities.js?v=1.2"></script>
+        <script src="js/savedParkings.js?v=1.0"></script>
         <script src="js/main.js?v=1.2"></script>
         <script src="js/utils.js?v=1.2"></script>
         <script src="js/api.js?v=1.2"></script>

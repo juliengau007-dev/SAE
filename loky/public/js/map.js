@@ -13,6 +13,10 @@ function createParkingPopup(name, isFree, availableSpots, hasElectric, hasPMR, l
     const tActivateGuidance = typeof t === "function" ? t("popup_activate_guidance") : "Activer le guidage";
     const tAddFavorite = typeof t === "function" ? t("popup_add_favorite") : "Ajouter aux favoris";
     
+    // Vérifier si le parking est enregistré
+    const isSaved = typeof isParkingSaved === 'function' && isParkingSaved(fid);
+    const savedParking = isSaved && typeof getSavedParking === 'function' ? getSavedParking(fid) : null;
+    
     const costLabel = isFree === true 
         ? `<span class="parking-popup-badge free">🆓 ${tFree}</span>`
         : isFree === false 
@@ -38,12 +42,31 @@ function createParkingPopup(name, isFree, availableSpots, hasElectric, hasPMR, l
         ? `<div class="parking-popup-features">${features.join('')}</div>`
         : '';
     
+    // Note personnalisée si le parking est enregistré
+    const noteHtml = savedParking && savedParking.note
+        ? `<div class="parking-popup-row" style="margin-top: 8px; padding: 8px; background: #f8f9fa; border-radius: 6px; font-size: 13px; color: #495057;">
+            📝 ${savedParking.note.replace(/</g, '&lt;').replace(/>/g, '&gt;')}
+          </div>`
+        : '';
+    
+    // Échapper les guillemets pour éviter les erreurs de syntaxe
+    const escapedName = name.replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+    const displayName = savedParking ? savedParking.customName.replace(/</g, '&lt;').replace(/>/g, '&gt;') : name.replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    
     return `
         <div class="parking-popup">
             <div class="parking-popup-header">
-                <div class="parking-popup-title">${name}</div>
-                <button class="parking-popup-favorite" onclick="toggleFavorite(event, ${JSON.stringify(fid)})" title="${tAddFavorite}">
-                    ⭐
+                <div class="parking-popup-title">${displayName}</div>
+                <button class="parking-popup-favorite parking-favorite-btn ${isSaved ? 'active' : ''}" 
+                    data-parking-id="${fid}" 
+                    data-parking-name="${escapedName}"
+                    data-parking-lat="${lat}"
+                    data-parking-lon="${lon}"
+                    data-parking-free="${isFree}"
+                    data-parking-electric="${hasElectric}"
+                    data-parking-pmr="${hasPMR}"
+                    title="${tAddFavorite}">
+                    ${isSaved ? '⭐' : '☆'}
                 </button>
             </div>
             
@@ -53,6 +76,7 @@ function createParkingPopup(name, isFree, availableSpots, hasElectric, hasPMR, l
                 </div>
                 ${spotsLabel}
                 ${featuresHtml}
+                ${noteHtml}
             </div>
             
             <div class="parking-popup-actions">
@@ -65,14 +89,35 @@ function createParkingPopup(name, isFree, availableSpots, hasElectric, hasPMR, l
 }
 
 /**
- * toggleFavorite()
- * Fonction placeholder pour la gestion des favoris (à implémenter plus tard)
+ * toggleFavoriteFromPopup()
+ * Gère l'ajout/suppression d'un parking des favoris
  */
-function toggleFavorite(event, fid) {
-    event.stopPropagation();
-    console.log('Toggle favorite for parking:', fid);
-    // TODO: Implémenter la fonctionnalité des favoris
+function toggleFavoriteFromPopup(button) {
+    // Récupérer les données depuis les attributs data
+    const parkingData = {
+        id: button.getAttribute('data-parking-id'),
+        name: button.getAttribute('data-parking-name'),
+        lat: parseFloat(button.getAttribute('data-parking-lat')),
+        lon: parseFloat(button.getAttribute('data-parking-lon'))
+    };
+    
+    if (typeof isParkingSaved !== 'function' || typeof openSaveParkingModal !== 'function') {
+        console.error('savedParkings.js not loaded');
+        return;
+    }
+    
+    openSaveParkingModal(parkingData, isParkingSaved(parkingData.id));
 }
+
+// Délégation d'événements pour les boutons favoris (gérer les éléments dynamiques)
+document.addEventListener('click', function(e) {
+    if (e.target.closest('.parking-favorite-btn')) {
+        e.preventDefault();
+        e.stopPropagation();
+        const button = e.target.closest('.parking-favorite-btn');
+        toggleFavoriteFromPopup(button);
+    }
+});
 
 /**
  * initApp()
@@ -551,6 +596,7 @@ async function loadParkings() {
                 });
             },
         }).addTo(map);
+        
         // Après le chargement des parkings, mettre à jour le message de guidage
         try {
             if (typeof findNearestParking === "function") {

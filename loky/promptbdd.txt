@@ -121,3 +121,22 @@ CREATE TABLE `Possede` (
   CONSTRAINT `Possede_ibfk_1` FOREIGN KEY (`id_utilisateur`) REFERENCES `Utilisateur` (`id_utilisateur`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `Possede_ibfk_2` FOREIGN KEY (`id_vehicule`) REFERENCES `Vehicule` (`id_vehicule`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
+
+-- --------------------------------------------------------
+-- Table parkings enregistrés (favoris)
+-- --------------------------------------------------------
+CREATE TABLE IF NOT EXISTS `SavedParkings` (
+  `id_saved` INT(11) NOT NULL AUTO_INCREMENT,
+  `user_id` INT(11) DEFAULT NULL COMMENT 'ID utilisateur (NULL si invité)',
+  `parking_id` VARCHAR(50) NOT NULL COMMENT 'ID du parking (fid)',
+  `parking_name` VARCHAR(255) NOT NULL COMMENT 'Nom original du parking',
+  `custom_name` VARCHAR(255) NOT NULL COMMENT 'Nom personnalisé par l\'utilisateur',
+  `note` TEXT DEFAULT NULL COMMENT 'Note/description personnalisée',
+  `latitude` DECIMAL(10,8) NOT NULL,
+  `longitude` DECIMAL(11,8) NOT NULL,
+  `created_at` DATETIME DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id_saved`),
+  KEY `user_id` (`user_id`),
+  KEY `parking_id` (`parking_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

@@ -239,6 +239,38 @@ body {
     font-size: 14px;
 }
 
+/* Collapsible sections */
+.collapsible-header {
+    cursor: pointer;
+    user-select: none;
+}
+
+.collapsible-header:hover {
+    background: rgba(0, 0, 0, 0.03);
+    border-radius: 4px;
+}
+
+.chevron {
+    display: inline-block;
+    margin-right: 8px;
+    font-size: 10px;
+    transition: transform 0.2s ease;
+}
+
+.collapsible-header.collapsed .chevron {
+    transform: rotate(-90deg);
+}
+
+.collapsible-content {
+    max-height: 500px;
+    overflow: hidden;
+    transition: max-height 0.3s ease;
+}
+
+.collapsible-content.collapsed {
+    max-height: 0;
+}
+
 .settings-row select {
     padding: 6px 10px;
     border-radius: 6px;
@@ -711,6 +743,12 @@ input:checked+.slider:before {
     border-color: #007bff;
 }
 
+textarea.modal-input {
+    resize: vertical;
+    min-height: 80px;
+    font-family: inherit;
+}
+
 .modal-buttons {
     display: flex;
     gap: 10px;
@@ -891,6 +929,15 @@ input:checked+.slider:before {
 
 .btn-edit:hover {
     background: #545b62;
+}
+
+/* Styles spécifiques pour les parkings enregistrés */
+.saved-parking-item .vehicle-item-info {
+    cursor: pointer;
+}
+
+.saved-parking-item .vehicle-item-info:hover {
+    opacity: 0.8;
 }
 
 .btn-small-add {

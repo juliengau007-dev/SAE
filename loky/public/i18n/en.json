@@ -9,6 +9,7 @@
     "settings_height_placeholder": "e.g. 200",
     "settings_electric": "Electric vehicles",
     "settings_free_only": "Free only",
+    "settings_filters": "Filters",
     "settings_availability": "Check availability",
     "settings_language": "Language",
     "nearest_parking_default": "Searching for parking...",
@@ -100,5 +101,16 @@
     "popup_electric": "Electric",
     "popup_pmr": "Disabled access",
     "popup_activate_guidance": "Directions",
-    "popup_add_favorite": "Add to favorites"
+    "popup_add_favorite": "Add to favorites",
+    "saved_parkings": "Saved",
+    "no_saved_parkings": "No saved parking",
+    "save_parking_title": "Save parking",
+    "save_parking_name": "Custom name",
+    "save_parking_name_placeholder": "e.g. Parking near home",
+    "save_parking_note": "Note / Description",
+    "save_parking_note_placeholder": "Add a personal note...",
+    "save_parking_save": "Save",
+    "save_parking_delete": "Delete",
+    "save_parking_success": "Parking saved!",
+    "save_parking_delete_confirm": "Are you sure you want to delete this saved parking?"
 }

@@ -9,6 +9,7 @@
     "settings_height_placeholder": "ex: 200",
     "settings_electric": "Véhicules électriques",
     "settings_free_only": "Gratuit uniquement",
+    "settings_filters": "Filtres",
     "settings_availability": "Vérifier disponibilité",
     "settings_language": "Langue",
     "nearest_parking_default": "Recherche du parking...",
@@ -100,5 +101,16 @@
     "popup_electric": "Électrique",
     "popup_pmr": "PMR",
     "popup_activate_guidance": "Itinéraires",
-    "popup_add_favorite": "Ajouter aux favoris"
+    "popup_add_favorite": "Ajouter aux favoris",
+    "saved_parkings": "Enregistrés",
+    "no_saved_parkings": "Aucun parking enregistré",
+    "save_parking_title": "Enregistrer le parking",
+    "save_parking_name": "Nom personnalisé",
+    "save_parking_name_placeholder": "ex: Parking près de la maison",
+    "save_parking_note": "Note / Description",
+    "save_parking_note_placeholder": "Ajoutez une note personnelle...",
+    "save_parking_save": "Enregistrer",
+    "save_parking_delete": "Supprimer",
+    "save_parking_success": "Parking enregistré !",
+    "save_parking_delete_confirm": "Êtes-vous sûr de vouloir supprimer ce parking enregistré ?"
 }

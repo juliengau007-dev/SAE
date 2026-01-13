@@ -402,6 +402,9 @@ document.addEventListener("DOMContentLoaded", () => {
             const vehicleListSection = document.getElementById(
                 "vehicleListSection",
             );
+            const savedParkingListSection = document.getElementById(
+                "savedParkingListSection",
+            );
             const vehicleListEl = document.getElementById("vehicleList");
             const noVehicleMsg = document.getElementById("noVehicleMsg");
 
@@ -422,6 +425,10 @@ document.addEventListener("DOMContentLoaded", () => {
                 if (vehicleListSection) {
                     vehicleListSection.style.display = "block";
                 }
+                // Show saved parkings section
+                if (savedParkingListSection) {
+                    savedParkingListSection.style.display = "block";
+                }
 
                 // Apply user PMR
                 if (currentUser.pmr && document.getElementById("pmrToggle")) {
@@ -434,6 +441,11 @@ document.addEventListener("DOMContentLoaded", () => {
 
                 // Apply current vehicle settings
                 applyVehicleSettings();
+                
+                // Load saved parkings
+                if (typeof loadSavedParkings === 'function') {
+                    loadSavedParkings();
+                }
             } else {
                 if (authButtonsContainer) {
                     authButtonsContainer.style.display = "flex";
@@ -446,6 +458,10 @@ document.addEventListener("DOMContentLoaded", () => {
                 // Hide vehicle list section
                 if (vehicleListSection) {
                     vehicleListSection.style.display = "none";
+                }
+                // Hide saved parkings section
+                if (savedParkingListSection) {
+                    savedParkingListSection.style.display = "none";
                 }
                 if (vehicleListEl) vehicleListEl.innerHTML = "";
                 if (noVehicleMsg) noVehicleMsg.style.display = "none";
@@ -581,6 +597,12 @@ document.addEventListener("DOMContentLoaded", () => {
             try {
                 if (!authModal) return;
                 hideAuthError();
+                
+                // Masquer les boutons de connexion/inscription
+                if (authButtonsContainer) {
+                    authButtonsContainer.style.display = "none";
+                }
+                
                 authModal.style.display = "flex";
                 authModal.dataset.mode = mode;
                 if (mode === "login") {
@@ -604,6 +626,12 @@ document.addEventListener("DOMContentLoaded", () => {
             if (!authModal) return;
             authModal.style.display = "none";
             hideAuthError();
+            
+            // Réafficher les boutons si l'utilisateur n'est pas connecté
+            if (!currentUser && authButtonsContainer) {
+                authButtonsContainer.style.display = "flex";
+            }
+            
             try {
                 authForm.reset();
             } catch (e) {}
@@ -902,6 +930,22 @@ document.addEventListener("DOMContentLoaded", () => {
 
         // Load session on init
         loadUserSession();
+
+        // Gestion des sections collapsibles
+        document.querySelectorAll('.collapsible-header').forEach(header => {
+            header.addEventListener('click', (e) => {
+                // Ne pas fermer si on clique sur le bouton +
+                if (e.target.closest('.btn-small-add')) return;
+                
+                const targetId = header.getAttribute('data-target');
+                const content = document.getElementById(targetId);
+                
+                if (content) {
+                    header.classList.toggle('collapsed');
+                    content.classList.toggle('collapsed');
+                }
+            });
+        });
     } catch (e) {
         console.warn("ui init failed", e);
     }
