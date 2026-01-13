@@ -107,15 +107,26 @@
             <!-- Guidage vers parking le plus proche -->
             <div class="menuGuider bottom-center">
                 <h2 id="nearestParkingName"></h2>
-                <button
-                    id="btnGuider"
-                    onclick="goToNearestParking()"
-                    data-i18n-title="btn_go"
-                    data-i18n="btn_go"
-                    title="Allez"
-                >
-                    Allez
-                </button>
+                <div class="menuGuider-buttons">
+                    <button
+                        id="btnGuider"
+                        onclick="goToNearestParking()"
+                        data-i18n-title="btn_go"
+                        data-i18n="btn_go"
+                        title="Allez"
+                    >
+                        Allez
+                    </button>
+                    <button
+                        id="btnGoHome"
+                        onclick="navigateToHome()"
+                        data-i18n-title="btn_go_home"
+                        title="Aller à la maison"
+                        class="btn-home-nav"
+                    >
+                        🏠
+                    </button>
+                </div>
             </div>
 
             <!-- Bouton de paramètres en haut à droite -->
@@ -142,16 +153,43 @@
                         </div>
                     </div>
 
+                    <!-- Section maison -->
+                    <div class="settings-section settings-home">
+                        <div class="settings-row">
+                            <span data-i18n="settings_home"
+                            >Position maison</span>
+                            <button
+                                id="btnSetHomeFromSettings"
+                                class="btn-small"
+                                data-i18n="settings_set_home"
+                                onclick="setHomeFromSettings()"
+                            >
+                                Définir
+                            </button>
+                        </div>
+                        <div
+                            id="homePositionInfo"
+                            class="home-position-info"
+                            style="display: none"
+                        >
+                            <span id="homePositionText"></span>
+                        </div>
+                    </div>
+
                     <!-- Section véhicules (visible uniquement si connecté) -->
                     <div
                         id="vehicleListSection"
                         class="settings-section"
                         style="display: none"
                     >
-                        <div class="settings-row collapsible-header" data-target="vehicleListContent">
+                        <div
+                            class="settings-row collapsible-header"
+                            data-target="vehicleListContent"
+                        >
                             <span>
                                 <span class="chevron">▼</span>
-                                <strong data-i18n="my_vehicles">Mes véhicules</strong>
+                                <strong data-i18n="my_vehicles"
+                                >Mes véhicules</strong>
                             </span>
                             <button
                                 id="btnAddVehicle"
@@ -161,8 +199,11 @@
                                 +
                             </button>
                         </div>
-                        <div id="vehicleListContent" class="collapsible-content">
-                                <div id="vehicleList" class="vehicle-list"></div>
+                        <div
+                            id="vehicleListContent"
+                            class="collapsible-content"
+                        >
+                            <div id="vehicleList" class="vehicle-list"></div>
                             <div
                                 id="noVehicleMsg"
                                 data-i18n="no_vehicle"
@@ -179,14 +220,22 @@
                         class="settings-section"
                         style="display: none"
                     >
-                        <div class="settings-row collapsible-header" data-target="savedParkingsContent">
+                        <div
+                            class="settings-row collapsible-header"
+                            data-target="savedParkingsContent"
+                        >
                             <span>
                                 <span class="chevron">▼</span>
-                                <strong data-i18n="saved_parkings">Enregistrés</strong>
+                                <strong data-i18n="saved_parkings"
+                                >Enregistrés</strong>
                             </span>
                         </div>
-                        <div id="savedParkingsContent" class="collapsible-content">
-                            <div id="savedParkingsList" class="vehicle-list"></div>
+                        <div
+                            id="savedParkingsContent"
+                            class="collapsible-content"
+                        >
+                            <div id="savedParkingsList" class="vehicle-list">
+                            </div>
                             <div
                                 id="noSavedParkingsMsg"
                                 data-i18n="no_saved_parkings"
@@ -234,24 +283,35 @@
 
                     <!-- Section Filtres (collapsible) -->
                     <div class="settings-section">
-                        <div class="settings-row collapsible-header" data-target="filtersContent">
+                        <div
+                            class="settings-row collapsible-header"
+                            data-target="filtersContent"
+                        >
                             <span>
                                 <span class="chevron">▼</span>
-                                <strong data-i18n="settings_filters">Filtres</strong>
+                                <strong data-i18n="settings_filters"
+                                >Filtres</strong>
                             </span>
                         </div>
                         <div id="filtersContent" class="collapsible-content">
                             <div class="settings-row">
-                                <span data-i18n="settings_free_only">Gratuit uniquement</span>
+                                <span data-i18n="settings_free_only"
+                                >Gratuit uniquement</span>
                                 <label class="switch">
                                     <input type="checkbox" id="payantToggle">
                                     <span class="slider"></span>
                                 </label>
                             </div>
                             <div class="settings-row">
-                                <span id="availabilityLabel" data-i18n="settings_availability">Vérifier disponibilité</span>
+                                <span
+                                    id="availabilityLabel"
+                                    data-i18n="settings_availability"
+                                >Vérifier disponibilité</span>
                                 <label class="switch">
-                                    <input type="checkbox" id="availabilityToggle">
+                                    <input
+                                        type="checkbox"
+                                        id="availabilityToggle"
+                                    >
                                     <span class="slider"></span>
                                 </label>
                             </div>
@@ -265,7 +325,7 @@
                     <div
                         id="authButtonsContainer"
                         class="settings-section settings-auth-buttons"
-                        style="display: none;"
+                        style="display: none"
                     >
                         <button
                             id="btnConnexion"
@@ -385,11 +445,18 @@
             <div class="modal-box">
                 <button id="saveParkingClose" class="close-btn">✖</button>
                 <h3 data-i18n="save_parking_title">Enregistrer le parking</h3>
-                <div id="saveParkingError" class="auth-error" style="display: none"></div>
+                <div
+                    id="saveParkingError"
+                    class="auth-error"
+                    style="display: none"
+                >
+                </div>
                 <form id="saveParkingForm">
                     <div class="modal-form-content">
                         <label>
-                            <div data-i18n="save_parking_name">Nom personnalisé</div>
+                            <div data-i18n="save_parking_name">
+                                Nom personnalisé
+                            </div>
                             <input
                                 id="parkingCustomName"
                                 type="text"
@@ -400,7 +467,9 @@
                             >
                         </label>
                         <label>
-                            <div data-i18n="save_parking_note">Note / Description</div>
+                            <div data-i18n="save_parking_note">
+                                Note / Description
+                            </div>
                             <textarea
                                 id="parkingNote"
                                 placeholder=""
@@ -411,13 +480,28 @@
                         </label>
                     </div>
                     <div class="modal-buttons">
-                        <button type="submit" class="btn-primary" data-i18n="save_parking_save">
+                        <button
+                            type="submit"
+                            class="btn-primary"
+                            data-i18n="save_parking_save"
+                        >
                             Enregistrer
                         </button>
-                        <button type="button" id="btnCancelSaveParking" class="btn-secondary" data-i18n="close">
+                        <button
+                            type="button"
+                            id="btnCancelSaveParking"
+                            class="btn-secondary"
+                            data-i18n="close"
+                        >
                             Annuler
                         </button>
-                        <button type="button" id="btnDeleteSavedParking" class="btn-danger" data-i18n="save_parking_delete" style="display: none">
+                        <button
+                            type="button"
+                            id="btnDeleteSavedParking"
+                            class="btn-danger"
+                            data-i18n="save_parking_delete"
+                            style="display: none"
+                        >
                             Supprimer
                         </button>
                     </div>

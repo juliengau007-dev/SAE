@@ -3,70 +3,70 @@
  * createParkingPopup()
  * Crée le HTML pour la popup personnalisée d'un parking
  */
-function createParkingPopup(name, isFree, availableSpots, hasElectric, hasPMR, lat, lon, fid) {
+function createParkingPopup(
+    name,
+    isFree,
+    availableSpots,
+    hasElectric,
+    hasPMR,
+    lat,
+    lon,
+    fid,
+) {
     const tFree = typeof t === "function" ? t("popup_free") : "Gratuit";
     const tPaid = typeof t === "function" ? t("popup_paid") : "Payant";
-    const tUnspecified = typeof t === "function" ? t("popup_cost_unspecified") : "Non spécifié";
-    const tElectric = typeof t === "function" ? t("popup_electric") : "Électrique";
+    const tUnspecified = typeof t === "function"
+        ? t("popup_cost_unspecified")
+        : "Non spécifié";
+    const tElectric = typeof t === "function"
+        ? t("popup_electric")
+        : "Électrique";
     const tPMR = typeof t === "function" ? t("popup_pmr") : "PMR";
     const tPlaces = typeof t === "function" ? t("places_label") : "places";
-    const tActivateGuidance = typeof t === "function" ? t("popup_activate_guidance") : "Activer le guidage";
-    const tAddFavorite = typeof t === "function" ? t("popup_add_favorite") : "Ajouter aux favoris";
-    
-    // Vérifier si le parking est enregistré
-    const isSaved = typeof isParkingSaved === 'function' && isParkingSaved(fid);
-    const savedParking = isSaved && typeof getSavedParking === 'function' ? getSavedParking(fid) : null;
-    
-    const costLabel = isFree === true 
+    const tActivateGuidance = typeof t === "function"
+        ? t("popup_activate_guidance")
+        : "Activer le guidage";
+    const tAddFavorite = typeof t === "function"
+        ? t("popup_add_favorite")
+        : "Ajouter aux favoris";
+
+    const costLabel = isFree === true
         ? `<span class="parking-popup-badge free">🆓 ${tFree}</span>`
-        : isFree === false 
-            ? `<span class="parking-popup-badge paid">💳 ${tPaid}</span>`
-            : `<span class="parking-popup-badge">❓ ${tUnspecified}</span>`;
-    
-    const spotsLabel = availableSpots 
+        : isFree === false
+        ? `<span class="parking-popup-badge paid">💳 ${tPaid}</span>`
+        : `<span class="parking-popup-badge">❓ ${tUnspecified}</span>`;
+
+    const spotsLabel = availableSpots
         ? `<div class="parking-popup-row">
             <span class="parking-popup-icon">🅿️</span>
             <span><strong>${availableSpots}</strong> ${tPlaces}</span>
           </div>`
-        : '';
-    
+        : "";
+
     const features = [];
     if (hasElectric) {
-        features.push(`<div class="parking-popup-feature"><span class="parking-popup-feature-icon">⚡</span><span>${tElectric}</span></div>`);
+        features.push(
+            `<div class="parking-popup-feature"><span class="parking-popup-feature-icon">⚡</span><span>${tElectric}</span></div>`,
+        );
     }
     if (hasPMR) {
-        features.push(`<div class="parking-popup-feature"><span class="parking-popup-feature-icon">♿</span><span>${tPMR}</span></div>`);
+        features.push(
+            `<div class="parking-popup-feature"><span class="parking-popup-feature-icon">♿</span><span>${tPMR}</span></div>`,
+        );
     }
-    
-    const featuresHtml = features.length > 0 
-        ? `<div class="parking-popup-features">${features.join('')}</div>`
-        : '';
-    
-    // Note personnalisée si le parking est enregistré
-    const noteHtml = savedParking && savedParking.note
-        ? `<div class="parking-popup-row" style="margin-top: 8px; padding: 8px; background: #f8f9fa; border-radius: 6px; font-size: 13px; color: #495057;">
-            📝 ${savedParking.note.replace(/</g, '&lt;').replace(/>/g, '&gt;')}
-          </div>`
-        : '';
-    
-    // Échapper les guillemets pour éviter les erreurs de syntaxe
-    const escapedName = name.replace(/"/g, '&quot;').replace(/'/g, '&#39;');
-    const displayName = savedParking ? savedParking.customName.replace(/</g, '&lt;').replace(/>/g, '&gt;') : name.replace(/</g, '&lt;').replace(/>/g, '&gt;');
-    
+
+    const featuresHtml = features.length > 0
+        ? `<div class="parking-popup-features">${features.join("")}</div>`
+        : "";
+
     return `
         <div class="parking-popup">
             <div class="parking-popup-header">
-                <div class="parking-popup-title">${displayName}</div>
-                <button class="parking-popup-favorite parking-favorite-btn ${isSaved ? 'active' : ''}" 
-                    data-parking-id="${fid}" 
-                    data-parking-name="${escapedName}"
-                    data-parking-lat="${lat}"
-                    data-parking-lon="${lon}"
-                    data-parking-free="${isFree}"
-                    data-parking-electric="${hasElectric}"
-                    data-parking-pmr="${hasPMR}"
-                    title="${tAddFavorite}">
-                    ${isSaved ? '⭐' : '☆'}
+                <div class="parking-popup-title">${name}</div>
+                <button class="parking-popup-favorite" onclick="toggleFavorite(event, ${
+        JSON.stringify(fid)
+    })" title="${tAddFavorite}">
+                    ⭐
                 </button>
             </div>
             
@@ -76,11 +76,12 @@ function createParkingPopup(name, isFree, availableSpots, hasElectric, hasPMR, l
                 </div>
                 ${spotsLabel}
                 ${featuresHtml}
-                ${noteHtml}
             </div>
             
             <div class="parking-popup-actions">
-                <button class="parking-popup-btn-navigate" onclick="goToParking(${lat}, ${lon}, ${JSON.stringify(fid)})">
+                <button class="parking-popup-btn-navigate" onclick="goToParking(${lat}, ${lon}, ${
+        JSON.stringify(fid)
+    })">
                     <span>${tActivateGuidance}</span>
                 </button>
             </div>
@@ -89,35 +90,14 @@ function createParkingPopup(name, isFree, availableSpots, hasElectric, hasPMR, l
 }
 
 /**
- * toggleFavoriteFromPopup()
- * Gère l'ajout/suppression d'un parking des favoris
+ * toggleFavorite()
+ * Fonction placeholder pour la gestion des favoris (à implémenter plus tard)
  */
-function toggleFavoriteFromPopup(button) {
-    // Récupérer les données depuis les attributs data
-    const parkingData = {
-        id: button.getAttribute('data-parking-id'),
-        name: button.getAttribute('data-parking-name'),
-        lat: parseFloat(button.getAttribute('data-parking-lat')),
-        lon: parseFloat(button.getAttribute('data-parking-lon'))
-    };
-    
-    if (typeof isParkingSaved !== 'function' || typeof openSaveParkingModal !== 'function') {
-        console.error('savedParkings.js not loaded');
-        return;
-    }
-    
-    openSaveParkingModal(parkingData, isParkingSaved(parkingData.id));
+function toggleFavorite(event, fid) {
+    event.stopPropagation();
+    console.log("Toggle favorite for parking:", fid);
+    // TODO: Implémenter la fonctionnalité des favoris
 }
-
-// Délégation d'événements pour les boutons favoris (gérer les éléments dynamiques)
-document.addEventListener('click', function(e) {
-    if (e.target.closest('.parking-favorite-btn')) {
-        e.preventDefault();
-        e.stopPropagation();
-        const button = e.target.closest('.parking-favorite-btn');
-        toggleFavoriteFromPopup(button);
-    }
-});
 
 /**
  * initApp()
@@ -194,7 +174,16 @@ function initApp() {
         });
 
         routingControl = L.Routing.control({
-            router: L.Routing.osrmv1({ language: "fr" }),
+            // Utiliser la langue courante si disponible, sinon tomber sur la langue
+            // du document ou `en` par défaut pour éviter une traduction forcée en français.
+            router: L.Routing.osrmv1({
+                language: (typeof I18N !== "undefined" && I18N.currentLang)
+                    ? I18N.currentLang
+                    : (document.documentElement &&
+                            document.documentElement.lang)
+                    ? document.documentElement.lang
+                    : "en",
+            }),
             waypoints: [],
             routeWhileDragging: true,
             show: true,
@@ -207,7 +196,7 @@ function initApp() {
                         ? document.documentElement.lang
                         : (typeof I18N !== "undefined"
                             ? I18N.currentLang
-                            : "fr"),
+                            : "en"),
                 units: "metric",
             }),
             createMarker: function (i, wp, nWps) {
@@ -219,17 +208,6 @@ function initApp() {
                 });
             },
         }).addTo(map);
-        // traduire si la langue choisis dans les parametres de l'appli est le français (le panneau est en anglais par défaut)
-        if (routingControl && routingControl.on && I18N.currentLang === "fr") {
-            routingControl.on(
-                "routesfound",
-                () => setTimeout(translateRoutingInstructions, 50),
-            );
-            routingControl.on(
-                "routeselected",
-                () => setTimeout(translateRoutingInstructions, 50),
-            );
-        }
 
         // déplacer le panneau de routage dans notre conteneur de guidage
         const routingContainer = document.querySelector(
@@ -237,6 +215,72 @@ function initApp() {
         );
         try {
             document.getElementById("guidage").appendChild(routingContainer);
+        } catch (e) {}
+
+        // Fonction utilitaire : applique une nouvelle langue au routingControl
+        // sans faire disparaître le panneau : on met à jour le formatter
+        // et on relance la traduction/restauration des instructions.
+        function createRoutingControlWithLang(lang) {
+            try {
+                if (routingControl) {
+                    try {
+                        // Mettre à jour le formatter utilisé pour formater les instructions
+                        routingControl.options.formatter = new L.Routing
+                            .Formatter({ language: lang, units: "metric" });
+                    } catch (e) {}
+                    try {
+                        // Certains routers gardent l'option language dans _router.options
+                        if (
+                            routingControl._router &&
+                            routingControl._router.options
+                        ) {
+                            routingControl._router.options.language = lang;
+                        }
+                    } catch (e) {}
+
+                    // Re-appliquer la traduction/restauration sur les textes visibles
+                    try {
+                        translateRoutingInstructions(lang);
+                    } catch (e) {}
+                    return;
+                }
+
+                // Si le contrôle n'existe pas encore, le créer normalement
+                routingControl = L.Routing.control({
+                    router: L.Routing.osrmv1({ language: lang }),
+                    waypoints: [],
+                    routeWhileDragging: true,
+                    show: true,
+                    lineOptions: {
+                        styles: [{ color: "blue", opacity: 0.6, weight: 3 }],
+                    },
+                    formatter: new L.Routing.Formatter({
+                        language: lang,
+                        units: "metric",
+                    }),
+                    createMarker: function (i, wp, nWps) {
+                        return L.marker(wp.latLng, {
+                            opacity: 0,
+                            interactive: false,
+                            keyboard: false,
+                            draggable: false,
+                        });
+                    },
+                }).addTo(map);
+            } catch (e) {
+                console.warn("createRoutingControlWithLang failed", e);
+            }
+        }
+
+        // Réagir aux changements de langue provenant du module i18n
+        try {
+            window.addEventListener("i18n:languageChanged", (ev) => {
+                const lang = ev?.detail?.lang ||
+                    (document.documentElement &&
+                        document.documentElement.lang) ||
+                    "en";
+                createRoutingControlWithLang(lang);
+            });
         } catch (e) {}
 
         // ajouter un petit bouton pour quitter la navigation
@@ -314,6 +358,7 @@ function initApp() {
 
         // Charger la position maison depuis localStorage
         loadHomePosition();
+        updateHomePositionDisplay();
 
         watchPositionId = navigator.geolocation.watchPosition(
             updatePosition,
@@ -403,6 +448,7 @@ async function loadParkings() {
 
         if (availabilityEnabled) {
             const idFields = cityCfg.idFields || ["fid", "id"];
+            const kept = [];
             for (const f of features) {
                 let fid = null;
                 const props = f.properties || {};
@@ -421,6 +467,7 @@ async function loadParkings() {
                     if (info) {
                         f.properties = f.properties || {};
                         f.properties._availability = info;
+                        kept.push(f);
                     }
                 } catch (e) {
                     console.warn(
@@ -430,6 +477,8 @@ async function loadParkings() {
                     );
                 }
             }
+            // Ne garder que les parkings pour lesquels on a une info de disponibilité
+            features = kept;
         }
 
         try {
@@ -559,7 +608,11 @@ async function loadParkings() {
                     if (isFreeVal !== null && isFreeVal !== undefined) {
                         isFree = Number(isFreeVal) === 1;
                     } else {
-                        const hasCost = (props.cost_1h || props.cost_2h || props.price || props.tarif) ? true : false;
+                        const hasCost =
+                            (props.cost_1h || props.cost_2h || props.price ||
+                                    props.tarif)
+                                ? true
+                                : false;
                         isFree = !hasCost;
                     }
                 }
@@ -571,7 +624,11 @@ async function loadParkings() {
                     availText = avail.value;
                 } else {
                     const knownKeys = cityCfg.availabilityKeys || [
-                        "available", "free", "places", "disponible", "nb_places",
+                        "available",
+                        "free",
+                        "places",
+                        "disponible",
+                        "nb_places",
                     ];
                     for (const k of knownKeys) {
                         if (props[k] !== undefined && props[k] !== null) {
@@ -582,21 +639,31 @@ async function loadParkings() {
                 }
 
                 // Check for electric spots
-                const hasElectric = !!(props.electrique || props.electrique_capable || props.electrique_spots);
+                const hasElectric =
+                    !!(props.electrique || props.electrique_capable ||
+                        props.electrique_spots);
 
                 // Check for PMR access
-                const hasPMR = !!(props.pmr || props.access_xpmr || props.pmr_accessible);
+                const hasPMR =
+                    !!(props.pmr || props.access_xpmr || props.pmr_accessible);
 
-                const popupHtml = createParkingPopup(nom, isFree, availText, hasElectric, hasPMR, 
-                    feature.geometry.coordinates[1], feature.geometry.coordinates[0], fid);
+                const popupHtml = createParkingPopup(
+                    nom,
+                    isFree,
+                    availText,
+                    hasElectric,
+                    hasPMR,
+                    feature.geometry.coordinates[1],
+                    feature.geometry.coordinates[0],
+                    fid,
+                );
 
                 layer.bindPopup(popupHtml, {
                     maxWidth: 320,
-                    className: 'custom-parking-popup'
+                    className: "custom-parking-popup",
                 });
             },
         }).addTo(map);
-        
         // Après le chargement des parkings, mettre à jour le message de guidage
         try {
             if (typeof findNearestParking === "function") {
@@ -643,6 +710,14 @@ function quitNavigation() {
         if (routingEl) routingEl.style.display = "none";
         const mg = document.querySelector(".menuGuider");
         if (mg) mg.style.display = "flex";
+
+        // Supprimer le marqueur maison si présent
+        if (window.homeMarker) {
+            map.removeLayer(window.homeMarker);
+            window.homeMarker = null;
+        }
+
+        _currentTargetFid = null;
         loadParkings();
     } catch (e) {
         console.warn("quitNavigation", e);
@@ -868,6 +943,7 @@ async function attemptAutoSwitchIfNeeded() {
 // VIRTUAL MOVEMENT MODE
 // ========================================
 let virtualModeActive = false;
+let homeSetMode = false; // Mode spécial pour définir la maison
 let virtualSpeed = 5;
 let virtualMoveInterval = null;
 let centerClickCount = 0;
@@ -946,7 +1022,19 @@ function initVirtualMoveMode() {
     const btnGoHome = document.getElementById("btnGoHome");
 
     if (btnSetHome) {
-        btnSetHome.addEventListener("click", saveHomePosition);
+        btnSetHome.addEventListener("click", () => {
+            // Sauvegarder la position actuelle comme maison
+            const pos = { lat: currentLat, lng: currentLon };
+            homePosition = pos;
+            localStorage.setItem("lokyHomePosition", JSON.stringify(pos));
+            updateHomePositionDisplay();
+            showTemporaryMessage(I18N.t("home_set_success"));
+
+            // Si on était en mode définir maison, quitter le mode virtuel
+            if (homeSetMode) {
+                deactivateVirtualMode();
+            }
+        });
     }
     if (btnGoHome) {
         btnGoHome.addEventListener("click", goToHomePosition);
@@ -991,13 +1079,29 @@ function initVirtualMoveMode() {
     });
 }
 
-function activateVirtualMode() {
+function activateVirtualMode(isHomeMode = false) {
     virtualModeActive = true;
+    homeSetMode = isHomeMode;
     const virtualMoveMode = document.getElementById("virtualMoveMode");
     const menuGuider = document.querySelector(".menuGuider");
+    const btnGoHome = document.getElementById("btnGoHome");
+    const btnSetHome = document.getElementById("btnSetHome");
+    const homeControls = document.querySelector(".home-controls");
 
     if (virtualMoveMode) {
         virtualMoveMode.style.display = "flex";
+    }
+
+    // En mode définir maison : masquer "Aller", ne montrer que "Définir"
+    if (homeSetMode) {
+        if (btnGoHome) btnGoHome.style.display = "none";
+        if (btnSetHome) {
+            btnSetHome.textContent = "🏠 " + I18N.t("settings_set_home");
+            btnSetHome.classList.add("btn-home-primary");
+        }
+    } else {
+        if (btnGoHome) btnGoHome.style.display = "inline-flex";
+        if (btnSetHome) btnSetHome.classList.remove("btn-home-primary");
     }
 
     // Hide the guidance menu to avoid overlap
@@ -1013,6 +1117,7 @@ function activateVirtualMode() {
 
 function deactivateVirtualMode() {
     virtualModeActive = false;
+    homeSetMode = false;
     stopMoving();
 
     const virtualMoveMode = document.getElementById("virtualMoveMode");
@@ -1025,6 +1130,21 @@ function deactivateVirtualMode() {
     // Ne réafficher le menu parking que si aucun guidage n'est en cours
     if (menuGuider && _currentTargetFid == null) {
         menuGuider.style.display = "flex";
+    }
+
+    // Restaurer la position réelle via géolocalisation
+    if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+            (pos) => {
+                currentLat = pos.coords.latitude;
+                currentLon = pos.coords.longitude;
+                if (map) map.setView([currentLat, currentLon], map.getZoom());
+                if (userMarker) userMarker.setLatLng([currentLat, currentLon]);
+                if (typeof loadParkings === "function") loadParkings();
+            },
+            (err) => console.warn("Restore position failed", err),
+            { enableHighAccuracy: true, timeout: 5000 },
+        );
     }
 }
 
@@ -1115,9 +1235,10 @@ function loadHomePosition() {
 
 function saveHomePosition() {
     if (currentLat && currentLon) {
-        homePosition = { lat: currentLat, lon: currentLon };
+        homePosition = { lat: currentLat, lng: currentLon };
         localStorage.setItem("lokyHomePosition", JSON.stringify(homePosition));
         console.log("Position maison sauvegardée:", homePosition);
+        updateHomePositionDisplay();
 
         // Afficher une confirmation visuelle
         const msg = typeof t === "function"
@@ -1128,9 +1249,9 @@ function saveHomePosition() {
 }
 
 function goToHomePosition() {
-    if (homePosition && homePosition.lat && homePosition.lon) {
+    if (homePosition && homePosition.lat && homePosition.lng) {
         currentLat = homePosition.lat;
-        currentLon = homePosition.lon;
+        currentLon = homePosition.lng;
 
         if (map) {
             map.setView([currentLat, currentLon], 16);
@@ -1175,6 +1296,101 @@ function showTemporaryMessage(msg) {
             toast.style.display = "none";
         }, 300);
     }, 2000);
+}
+
+// Définir la maison depuis les paramètres
+// Lance le simulateur en mode "définir maison"
+function setHomeFromSettings() {
+    if (_currentTargetFid != null) {
+        showTemporaryMessage(I18N.t("home_navigation_active"));
+        return;
+    }
+
+    // Fermer le menu paramètres
+    fermerMenu();
+
+    // Lancer le mode virtuel en mode "définir maison"
+    activateVirtualMode(true);
+    showTemporaryMessage(I18N.t("home_set_mode_info"));
+}
+
+// Met à jour l'affichage de la position maison dans les paramètres
+function updateHomePositionDisplay() {
+    const infoDiv = document.getElementById("homePositionInfo");
+    const textSpan = document.getElementById("homePositionText");
+    const btnSet = document.getElementById("btnSetHomeFromSettings");
+
+    // Support both lng and lon for backward compatibility
+    const homeLng = homePosition?.lng ?? homePosition?.lon;
+
+    if (
+        homePosition && homePosition.lat != null && homeLng != null &&
+        infoDiv && textSpan
+    ) {
+        infoDiv.style.display = "block";
+        textSpan.textContent = `✅ ${homePosition.lat.toFixed(5)}, ${
+            homeLng.toFixed(5)
+        }`;
+        if (btnSet) {
+            btnSet.textContent = I18N.t("settings_update_home") || "Modifier";
+        }
+    } else if (infoDiv) {
+        infoDiv.style.display = "block";
+        textSpan.textContent = I18N.t("home_not_defined") || "❌ Non définie";
+        if (btnSet) {
+            btnSet.textContent = I18N.t("settings_set_home") || "Définir";
+        }
+    }
+}
+
+// Lance le guidage vers la maison
+function navigateToHome() {
+    // Support both lng and lon for backward compatibility
+    const homeLng = homePosition?.lng ?? homePosition?.lon;
+
+    if (!homePosition || homePosition.lat == null || homeLng == null) {
+        showTemporaryMessage(I18N.t("home_position_not_set"));
+        return;
+    }
+
+    if (!currentLat || !currentLon) {
+        showTemporaryMessage(I18N.t("no_user_position"));
+        return;
+    }
+
+    // Définir la destination maison (utiliser homeLng pour compatibilité)
+    const homeDest = L.latLng(homePosition.lat, homeLng);
+    const startPos = L.latLng(currentLat, currentLon);
+
+    // Utiliser le routingControl existant comme goToParking
+    routingControl.setWaypoints([startPos, homeDest]);
+
+    // Afficher le panneau de routage
+    const routingEl = document.querySelector(".leaflet-routing-container");
+    if (routingEl) routingEl.style.display = "flex";
+
+    // Masquer le menu de guidage
+    const mg = document.querySelector(".menuGuider");
+    if (mg) mg.style.display = "none";
+
+    // Marquer qu'on est en navigation (vers maison, pas un parking)
+    _currentTargetFid = "home";
+
+    // Mettre un marqueur maison si pas déjà présent
+    if (!window.homeMarker) {
+        window.homeMarker = L.marker(homeDest, {
+            icon: L.divIcon({
+                html: '<div style="font-size: 24px;">🏠</div>',
+                iconSize: [30, 30],
+                iconAnchor: [15, 15],
+                className: "home-marker",
+            }),
+        }).addTo(map);
+    } else {
+        window.homeMarker.setLatLng(homeDest);
+    }
+
+    showTemporaryMessage(I18N.t("home_navigate_start"));
 }
 
 // startMetzPolling / stopMetzPolling are UI/API related — allow UI to define them if needed

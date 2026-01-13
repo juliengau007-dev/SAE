@@ -53,6 +53,13 @@ const I18N = {
         // Mettre à jour tous les éléments avec data-i18n
         this.updateDOM();
 
+        // Notifier les listeners externes qu'une nouvelle langue a été définie
+        try {
+            window.dispatchEvent(
+                new CustomEvent("i18n:languageChanged", { detail: { lang } }),
+            );
+        } catch (e) {}
+
         // Mettre à jour le sélecteur de langue s'il existe
         const langSelect = document.getElementById("languageSelect");
         if (langSelect) langSelect.value = lang;

@@ -27,9 +27,11 @@ function centerWithOffset(latlng, offsetX = 0, offsetY = -3) {
 }
 
 /**
- * Traduction simple des instructions de Leaflet Routing Machine.
+ * Met à jour / restaure la traduction des instructions de guidage.
+ * - si `lang === 'fr'` : traduit l'anglais -> français en utilisant DICT
+ * - sinon : restaure le texte original (stocké en `data-orig`)
  */
-function translateRoutingInstructions() {
+function translateRoutingInstructions(lang) {
     const DICT = [
         [/roundabout/ig, "Rond-point"],
         [/enter roundabout/ig, "Entrez au rond-point"],
@@ -51,11 +53,23 @@ function translateRoutingInstructions() {
     document.querySelectorAll(".leaflet-routing-instruction-text").forEach(
         (el) => {
             try {
-                let s = el.innerText || el.textContent || "";
-                DICT.forEach(([re, fr]) => {
-                    s = s.replace(re, fr);
-                });
-                if (s && s !== (el.innerText || "")) el.innerText = s;
+                // sauvegarder l'original la première fois
+                if (!el.dataset.orig) {
+                    el.dataset.orig = el.innerText || el.textContent || "";
+                }
+                const original = el.dataset.orig || "";
+                if (lang === "fr") {
+                    let s = original;
+                    DICT.forEach(([re, fr]) => {
+                        s = s.replace(re, fr);
+                    });
+                    if (s && s !== (el.innerText || "")) el.innerText = s;
+                } else {
+                    // restaurer
+                    if (original && original !== (el.innerText || "")) {
+                        el.innerText = original;
+                    }
+                }
             } catch (e) { /* ignorer erreurs élément par élément */ }
         },
     );

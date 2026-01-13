@@ -482,6 +482,12 @@ input:checked+.slider:before {
     text-align: center;
 }
 
+.menuGuider-buttons {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
 .menuGuider button {
     padding: 8px 12px;
     border: none;
@@ -493,6 +499,54 @@ input:checked+.slider:before {
 
 .menuGuider button:hover {
     transform: scale(1.05);
+}
+
+.btn-home-nav {
+    font-size: 1.4em;
+    padding: 8px 14px !important;
+    background: linear-gradient(135deg, #ff6b35, #f7931e) !important;
+    color: white;
+    border-radius: 50% !important;
+    width: 48px;
+    height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 3px 10px rgba(255, 107, 53, 0.4);
+    transition: all 0.2s ease;
+}
+
+.btn-home-nav:hover {
+    transform: scale(1.1) !important;
+    box-shadow: 0 5px 15px rgba(255, 107, 53, 0.5);
+}
+
+/* Home position info in settings */
+.home-position-info {
+    font-size: 0.85em;
+    color: #666;
+    margin-top: 5px;
+    padding: 4px 8px;
+    background: rgba(0, 0, 0, 0.05);
+    border-radius: 4px;
+}
+
+/* Settings home section button */
+.settings-home .btn-small {
+    background: linear-gradient(135deg, #ff6b35, #f7931e);
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 6px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    box-shadow: 0 2px 6px rgba(255, 107, 53, 0.3);
+}
+
+.settings-home .btn-small:hover {
+    background: linear-gradient(135deg, #e55a25, #e8850f);
+    transform: translateY(-1px);
 }
 
 /* Settings pane spacing */
@@ -1107,28 +1161,59 @@ textarea.modal-input {
 
 .btn-home {
     flex: 1;
-    padding: 8px 10px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    padding: 10px 14px;
     border: none;
-    border-radius: 6px;
-    background: #28a745;
+    border-radius: 8px;
+    background: linear-gradient(135deg, #28a745, #20c997);
     color: #fff;
-    font-size: 12px;
+    font-size: 13px;
     font-weight: 600;
     cursor: pointer;
-    transition: all 0.2s;
+    transition: all 0.2s ease;
     white-space: nowrap;
+    box-shadow: 0 2px 6px rgba(40, 167, 69, 0.3);
 }
 
 .btn-home:hover {
-    background: #218838;
+    background: linear-gradient(135deg, #218838, #1db886);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 10px rgba(40, 167, 69, 0.4);
 }
 
 .btn-home-go {
-    background: #17a2b8;
+    background: linear-gradient(135deg, #17a2b8, #3dc0d4);
+    box-shadow: 0 2px 6px rgba(23, 162, 184, 0.3);
 }
 
 .btn-home-go:hover {
-    background: #138496;
+    background: linear-gradient(135deg, #138496, #2eb3c7);
+    box-shadow: 0 4px 10px rgba(23, 162, 184, 0.4);
+}
+
+.btn-home-primary {
+    background: linear-gradient(135deg, #ff6b35, #f7931e) !important;
+    box-shadow: 0 2px 8px rgba(255, 107, 53, 0.4) !important;
+    animation: pulse-home 2s infinite;
+}
+
+.btn-home-primary:hover {
+    background: linear-gradient(135deg, #e55a25, #e8850f) !important;
+}
+
+@keyframes pulse-home {
+
+    0%,
+    100% {
+        box-shadow: 0 2px 8px rgba(255, 107, 53, 0.4);
+    }
+
+    50% {
+        box-shadow: 0 4px 16px rgba(255, 107, 53, 0.6);
+    }
 }
 
 /* Toast notification */
@@ -1353,15 +1438,15 @@ textarea.modal-input {
         padding: 10px 18px;
         font-size: 13px;
     }
-    
+
     .parking-popup {
         min-width: 240px;
     }
-    
+
     .parking-popup-title {
         font-size: 15px;
     }
-    
+
     .parking-popup-btn-navigate {
         padding: 9px 16px;
         font-size: 13px;

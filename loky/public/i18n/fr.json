@@ -112,5 +112,16 @@
     "save_parking_save": "Enregistrer",
     "save_parking_delete": "Supprimer",
     "save_parking_success": "Parking enregistré !",
-    "save_parking_delete_confirm": "Êtes-vous sûr de vouloir supprimer ce parking enregistré ?"
+    "save_parking_delete_confirm": "Êtes-vous sûr de vouloir supprimer ce parking enregistré ?",
+    "settings_home": "Position maison",
+    "settings_set_home": "Définir",
+    "settings_update_home": "Modifier",
+    "home_not_defined": "❌ Non définie",
+    "btn_go_home": "Aller à la maison",
+    "home_no_navigation_active": "Aucune navigation en cours, vous pouvez définir la maison",
+    "home_navigation_active": "Quittez la navigation avant de définir la maison",
+    "home_set_success": "Position maison définie !",
+    "home_navigate_start": "Guidage vers la maison démarré",
+    "home_set_mode_info": "Déplacez-vous puis appuyez sur Définir",
+    "no_user_position": "Position utilisateur non disponible"
 }

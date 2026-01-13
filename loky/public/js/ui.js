@@ -199,6 +199,14 @@ function startPolling(fid) {
             if (!isNaN(Number(info.value)) && Number(info.value) <= 0) {
                 attemptAutoSwitchIfNeeded();
             }
+            // Mettre à jour la carte si possible
+            try {
+                if (typeof updateParkingAvailabilityOnMap === 'function') {
+                    updateParkingAvailabilityOnMap(fid, info);
+                } else if (window && typeof window.updateParkingAvailabilityOnMap === 'function') {
+                    window.updateParkingAvailabilityOnMap(fid, info);
+                }
+            } catch (e) {}
         } else showAvailability("Pas de donnée", "bad");
     })();
 
@@ -211,6 +219,14 @@ function startPolling(fid) {
             if (!isNaN(Number(info.value)) && Number(info.value) <= 0) {
                 attemptAutoSwitchIfNeeded();
             }
+            // Mettre à jour la carte si possible
+            try {
+                if (typeof updateParkingAvailabilityOnMap === 'function') {
+                    updateParkingAvailabilityOnMap(fid, info);
+                } else if (window && typeof window.updateParkingAvailabilityOnMap === 'function') {
+                    window.updateParkingAvailabilityOnMap(fid, info);
+                }
+            } catch (e) {}
         } else showAvailability("Pas de donnée", "bad");
     }, _pollMs);
 }
@@ -412,6 +428,13 @@ document.addEventListener("DOMContentLoaded", () => {
                 if (authButtonsContainer) {
                     authButtonsContainer.style.display = "none";
                 }
+                // Masquer explicitement les boutons individuels si présents
+                try {
+                    const btnC = document.getElementById("btnConnexion");
+                    const btnI = document.getElementById("btnInscription");
+                    if (btnC) btnC.style.display = "none";
+                    if (btnI) btnI.style.display = "none";
+                } catch (e) {}
                 if (userLoggedContainer) {
                     userLoggedContainer.style.display = "flex";
                 }
@@ -441,15 +464,22 @@ document.addEventListener("DOMContentLoaded", () => {
 
                 // Apply current vehicle settings
                 applyVehicleSettings();
-                
+
                 // Load saved parkings
-                if (typeof loadSavedParkings === 'function') {
+                if (typeof loadSavedParkings === "function") {
                     loadSavedParkings();
                 }
             } else {
                 if (authButtonsContainer) {
                     authButtonsContainer.style.display = "flex";
                 }
+                // Réafficher explicitement les boutons individuels
+                try {
+                    const btnC = document.getElementById("btnConnexion");
+                    const btnI = document.getElementById("btnInscription");
+                    if (btnC) btnC.style.display = "inline-block";
+                    if (btnI) btnI.style.display = "inline-block";
+                } catch (e) {}
                 if (userLoggedContainer) {
                     userLoggedContainer.style.display = "none";
                 }
@@ -597,12 +627,12 @@ document.addEventListener("DOMContentLoaded", () => {
             try {
                 if (!authModal) return;
                 hideAuthError();
-                
+
                 // Masquer les boutons de connexion/inscription
                 if (authButtonsContainer) {
                     authButtonsContainer.style.display = "none";
                 }
-                
+
                 authModal.style.display = "flex";
                 authModal.dataset.mode = mode;
                 if (mode === "login") {
@@ -626,12 +656,12 @@ document.addEventListener("DOMContentLoaded", () => {
             if (!authModal) return;
             authModal.style.display = "none";
             hideAuthError();
-            
+
             // Réafficher les boutons si l'utilisateur n'est pas connecté
             if (!currentUser && authButtonsContainer) {
                 authButtonsContainer.style.display = "flex";
             }
-            
+
             try {
                 authForm.reset();
             } catch (e) {}
@@ -932,17 +962,17 @@ document.addEventListener("DOMContentLoaded", () => {
         loadUserSession();
 
         // Gestion des sections collapsibles
-        document.querySelectorAll('.collapsible-header').forEach(header => {
-            header.addEventListener('click', (e) => {
+        document.querySelectorAll(".collapsible-header").forEach((header) => {
+            header.addEventListener("click", (e) => {
                 // Ne pas fermer si on clique sur le bouton +
-                if (e.target.closest('.btn-small-add')) return;
-                
-                const targetId = header.getAttribute('data-target');
+                if (e.target.closest(".btn-small-add")) return;
+
+                const targetId = header.getAttribute("data-target");
                 const content = document.getElementById(targetId);
-                
+
                 if (content) {
-                    header.classList.toggle('collapsed');
-                    content.classList.toggle('collapsed');
+                    header.classList.toggle("collapsed");
+                    content.classList.toggle("collapsed");
                 }
             });
         });
