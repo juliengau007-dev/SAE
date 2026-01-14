@@ -7,17 +7,17 @@
  * modifiez-les si vous déployez localement.
  */
 
-// Paramètres de connexion (à adapter selon l'environnement)
+/* Paramètres de connexion (à adapter selon l'environnement)
 $dbHost = 'mysql-siteparkingmetz.alwaysdata.net';
 $dbName = 'siteparkingmetz_sae_parking';
 $dbUser = '441741_root';
-$dbPass = 'mdpPourLeSite';
+$dbPass = 'mdpPourLeSite';*/
 
-/* Pour le développement local avec WAMP
+// Pour le développement local avec WAMP
 $dbHost = '127.0.0.1';
 $dbName = 'sae_parking';
 $dbUser = 'root';
-$dbPass = '';*/
+$dbPass = '';
 
 try {
     // Création de l'objet PDO avec options raisonnables

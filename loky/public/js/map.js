@@ -63,10 +63,14 @@ function createParkingPopup(
         <div class="parking-popup">
             <div class="parking-popup-header">
                 <div class="parking-popup-title">${name}</div>
-                <button class="parking-popup-favorite" onclick="toggleFavorite(event, ${
-        JSON.stringify(fid)
-    })" title="${tAddFavorite}">
-                    ⭐
+                <button class="parking-popup-favorite${
+        typeof isParkingSaved === "function" && isParkingSaved(fid)
+            ? " active"
+            : ""
+    }" data-fid="${fid}" onclick="toggleFavorite(event)" title="${tAddFavorite}">
+                    ${
+        typeof isParkingSaved === "function" && isParkingSaved(fid) ? "★" : "☆"
+    }
                 </button>
             </div>
             
@@ -79,9 +83,9 @@ function createParkingPopup(
             </div>
             
             <div class="parking-popup-actions">
-                <button class="parking-popup-btn-navigate" onclick="goToParking(${lat}, ${lon}, ${
-        JSON.stringify(fid)
-    })">
+                <button class="parking-popup-btn-navigate" data-fid="${fid}" onclick="goToParking(${lat}, ${lon}, decodeURIComponent('${
+        encodeURIComponent(String(fid))
+    }'))">
                     <span>${tActivateGuidance}</span>
                 </button>
             </div>
@@ -95,8 +99,89 @@ function createParkingPopup(
  */
 function toggleFavorite(event, fid) {
     event.stopPropagation();
-    console.log("Toggle favorite for parking:", fid);
-    // TODO: Implémenter la fonctionnalité des favoris
+    // If fid not provided (we use data-fid on the button), try to read it from the event target
+    if (fid === undefined || fid === null) {
+        try {
+            let el = event.currentTarget || event.target;
+            let btn = null;
+            if (el && el.closest) btn = el.closest(".parking-popup-favorite");
+            if (!btn && el) {
+                const popup = el.closest ? el.closest(".parking-popup") : null;
+                if (popup) btn = popup.querySelector(".parking-popup-favorite");
+            }
+            if (btn) fid = btn.getAttribute("data-fid");
+        } catch (e) {
+            console.warn("toggleFavorite: cannot resolve fid from DOM", e);
+        }
+    }
+    try {
+        // Vérifier session utilisateur
+        const userStr = localStorage.getItem("lokyUser");
+        const user = userStr ? JSON.parse(userStr) : null;
+        if (!user || !user.id_utilisateur) {
+            // ouvrir la modal d'authentification si disponible
+            if (typeof openAuthModal === "function") {
+                openAuthModal("login");
+            } else {
+                alert("Vous devez être connecté pour gérer les favoris");
+            }
+            return;
+        }
+
+        // Chercher la feature dans le GeoJSON chargé
+        let feat = null;
+        try {
+            if (typeof _findParkingInGeoJson === "function") {
+                feat = _findParkingInGeoJson(lastGeoJson, fid);
+            }
+        } catch (e) {
+            console.warn("find feature in geojson failed", e);
+        }
+
+        // Si non trouvée, essayer dans la couche leaflet (parkingsLayer)
+        if (!feat && typeof parkingsLayer !== "undefined" && parkingsLayer) {
+            parkingsLayer.eachLayer((layer) => {
+                try {
+                    const f = layer.feature || {};
+                    const props = f.properties || {};
+                    const candidate = props.fid ?? props.id ?? f.id;
+                    if (String(candidate) === String(fid)) {
+                        feat = f;
+                    }
+                } catch (e) {}
+            });
+        }
+
+        // Construire l'objet parking attendu par le modal
+        let lat = null, lon = null, name = null;
+        if (feat) {
+            name = feat.properties?.lib || feat.properties?.name ||
+                feat.properties?.parking_name || feat.properties?.nom ||
+                feat.properties?.label || feat.properties?.title || null;
+            if (feat.geometry && Array.isArray(feat.geometry.coordinates)) {
+                lon = feat.geometry.coordinates[0];
+                lat = feat.geometry.coordinates[1];
+            }
+        } else {
+            // fallback : utiliser le fid comme nom
+            name = "Parking " + fid;
+        }
+
+        const parkingData = { id: fid, name: name, lat: lat, lon: lon };
+
+        // Ouvrir modal d'édition si déjà enregistré, sinon modal d'ajout
+        if (typeof isParkingSaved === "function" && isParkingSaved(fid)) {
+            if (typeof openSaveParkingModal === "function") {
+                openSaveParkingModal(parkingData, true);
+            }
+        } else {
+            if (typeof openSaveParkingModal === "function") {
+                openSaveParkingModal(parkingData, false);
+            }
+        }
+    } catch (e) {
+        console.error("toggleFavorite error", e);
+    }
 }
 
 /**

@@ -11,9 +11,9 @@ class Database
 
     /**
      * Create a new Database connection using PDO.
-     * Default credentials: host=127.0.0.1, db=ParkingMetz, user=root, pass=''
+     * Default credentials: host=127.0.0.1, db=sae_parking, user=root, pass=''
      */
-    public function __construct(string $host = '127.0.0.1', string $db = 'ParkingMetz', string $user = 'root', string $pass = '', string $charset = 'utf8mb4')
+    public function __construct(string $host = '127.0.0.1', string $db = 'sae_parking', string $user = 'root', string $pass = '', string $charset = 'utf8mb4')
     {
         $dsn = "mysql:host={$host};dbname={$db};charset={$charset}";
         $options = [
