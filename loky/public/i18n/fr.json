@@ -123,5 +123,12 @@
     "home_set_success": "Position maison définie !",
     "home_navigate_start": "Guidage vers la maison démarré",
     "home_set_mode_info": "Déplacez-vous puis appuyez sur Définir",
-    "no_user_position": "Position utilisateur non disponible"
+    "no_user_position": "Position utilisateur non disponible",
+    "geolocation_activated": "Géolocalisation activée",
+    "geolocation_deactivated": "Géolocalisation désactivée",
+    "guidage_requires_geoloc": "Activez la géolocalisation pour utiliser le guidage",
+    "privacy_policy": "Politique de confidentialité",
+    "geoloc_prompt": "Autoriser l'accès à votre position ?",
+    "geoloc_allow": "Autoriser",
+    "settings_geolocation": "Activer/désactiver la géolocalisation"
 }

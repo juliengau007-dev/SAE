@@ -19,9 +19,17 @@
         <div id="geolocPrompt">
             <div id="geolocPromptContent">
                 <button class="closeBtn">✖</button>
-                <p>Autoriser l'accès à votre position ?</p>
-                <button id="btnAllowGeoloc">Autoriser</button><br>
-                <a href="PolitiqueDeConfidentialite.html" target="_blank">Politique de confidentialité</a>
+                <p data-i18n="geoloc_prompt">
+                    Autoriser l'accès à votre position ?
+                </p>
+                <button id="btnAllowGeoloc" data-i18n="geoloc_allow">
+                    Autoriser
+                </button><br>
+                <a
+                    href="PolitiqueDeConfidentialite.html"
+                    target="_blank"
+                    data-i18n="privacy_policy"
+                >Politique de confidentialité</a>
             </div>
         </div>
         <div class="map-container">
@@ -327,17 +335,24 @@
                     </div>
 
                     <div class="settings-section">
-                                <div class="settings-row">
-                                    <span id="geolocLabel">Activer/désactiver la géolocalisation</span>
-                                    <label class="switch">
-                                        <input type="checkbox" id="geolocToggle">
-                                        <span class="slider"></span>
-                                    </label>
-                                </div>
-                                <div class="settings-row">
-                                    <a href="PolitiqueDeConfidentialite.html" target="_blank">Politique de confidentialité</a>
-                                </div>
-                            </div>
+                        <div class="settings-row">
+                            <span
+                                id="geolocLabel"
+                                data-i18n="settings_geolocation"
+                            >Activer/désactiver la géolocalisation</span>
+                            <label class="switch">
+                                <input type="checkbox" id="geolocToggle">
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+                        <div class="settings-row">
+                            <a
+                                href="PolitiqueDeConfidentialite.html"
+                                target="_blank"
+                                data-i18n="privacy_policy"
+                            >Politique de confidentialité</a>
+                        </div>
+                    </div>
 
                     <!-- Spacer pour pousser les boutons en bas -->
                     <div class="settings-spacer"></div>

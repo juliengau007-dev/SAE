@@ -123,5 +123,12 @@
     "home_set_success": "Home position set!",
     "home_navigate_start": "Guidance to home started",
     "home_set_mode_info": "Move to location then press Set",
-    "no_user_position": "User position not available"
+    "no_user_position": "User position not available",
+    "geolocation_activated": "Geolocation activated",
+    "geolocation_deactivated": "Geolocation deactivated",
+    "guidage_requires_geoloc": "Enable geolocation to use guidance",
+    "privacy_policy": "Privacy policy",
+    "geoloc_prompt": "Allow access to your location?",
+    "geoloc_allow": "Allow",
+    "settings_geolocation": "Enable/disable geolocation"
 }

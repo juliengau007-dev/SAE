@@ -1199,9 +1199,11 @@ function initVirtualMoveMode() {
 
     // Handle 5 consecutive clicks on center button
     btnCentrer.addEventListener("click", () => {
+        console.log("posisiton actuelle", getCurrentPosition());
         if (virtualModeActive) return;
 
         centerClickCount++;
+        
 
         if (centerClickCount === 1) {
             // First click - start timer
