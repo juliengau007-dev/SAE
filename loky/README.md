@@ -1,104 +1,279 @@
-# Projet MVP - API Parkings (GeoJSON)
+# Loky - Application de Recherche de Parkings
 
-## But
+## Description
 
-Ce dépôt fournit un petit service web qui expose des parkings au format GeoJSON.
-Le projet charge les géométries depuis un WFS distant (eurometropolemetz),
-enrichit optionnellement les entités avec des attributs stockés en base de
-données, et présente une interface cartographique (Leaflet) pour guider
-l'utilisateur vers un parking.
+Loky est une application web interactive de recherche et de guidage vers des
+parkings disponibles dans plusieurs villes européennes. L'application permet aux
+utilisateurs de trouver des parkings compatibles avec leurs besoins (véhicules
+électriques, PMR, hauteur maximale, etc.), de se faire guider vers le parking le
+plus proche, et de gérer leurs véhicules et parkings favoris.
+
+### Fonctionnalités principales
+
+- **Recherche multi-villes** : Support pour Metz, Strasbourg et Londres
+- **Carte interactive** : Affichage des parkings sur une carte Leaflet avec
+  géolocalisation
+- **Guidage en temps réel** : Itinéraires vers les parkings sélectionnés
+- **Filtres personnalisés** : PMR, hauteur maximale, véhicules électriques,
+  gratuit uniquement
+- **Mode déplacement virtuel** : Simulation de déplacement pour tester
+  l'application
+- **Gestion des comptes utilisateurs** : Inscription, connexion, gestion des
+  véhicules
+- **Parkings enregistrés** : Sauvegarde des parkings favoris
+- **Historique des trajets** : Suivi des parkings utilisés
+- **Multilingue** : Support français et anglais
+- **Mode hors ligne** : Cache des données pour utilisation sans connexion
 
 ## Prérequis
 
-- Windows + WAMP (Apache + MySQL + PHP) installé. Le projet est prévu pour être
-  placé dans `c:\wamp64\www\MVP`.
-- PHP activé (extensions PDO/MySQL disponibles).
+Avant d'installer et d'utiliser Loky, assurez-vous d'avoir :
 
-## Installation & mise en route (base de données + site)
+- **Serveur web** : Apache (recommandé avec WAMP sur Windows)
+- **Base de données** : MySQL ou MariaDB
+- **PHP** : Version 7.4 ou supérieure avec les extensions suivantes activées :
+  - PDO
+  - PDO MySQL
+  - JSON
+  - cURL (pour les appels API externes)
+- **Navigateur web** : Chrome, Firefox, Safari ou Edge (avec géolocalisation
+  activée)
+- **Connexion internet** : Pour charger les données des parkings et les cartes
 
-1. Copier le dossier du projet dans le répertoire web de WAMP :
+## Installation
 
-   - `c:\wamp64\www\MVP`
+### 1. Téléchargement et placement des fichiers
 
-2. Démarrer WAMP (Apache et MySQL) depuis le panneau WAMP.
+1. Téléchargez ou clonez le dépôt du projet.
+2. Placez le dossier du projet dans le répertoire web de votre serveur (par
+   exemple `c:\wamp64\www\loky` pour WAMP).
 
-3. Importer le schéma et les données fournies (fichier SQL).
+### 2. Configuration de la base de données
 
-4. Configurer la connexion à la BDD utilisée par l'API :
+1. Créez une nouvelle base de données MySQL nommée `ParkingMetz` (ou un autre
+   nom de votre choix).
+2. Importez le schéma de base de données fourni dans le fichier `promptbdd.txt`
+   :
+   - Ouvrez phpMyAdmin ou votre outil MySQL préféré
+   - Exécutez les requêtes SQL du fichier `promptbdd.txt`
+3. Les données d'exemple pour les parkings de Metz sont incluses dans le script
+   SQL.
 
-   - Fichier procédural : `public/api/_db_connect.php` — modifiez les variables
-     `$dbHost`, `$dbName`, `$dbUser`, `$dbPass` pour pointer vers votre instance
-     locale (exemple pour WAMP local) :
+### 3. Configuration de l'application
+
+Modifiez les fichiers de configuration suivants :
+
+#### Fichier `public/api/_db_connect.php`
 
 ```php
-$dbHost = '127.0.0.1';
-$dbName = 'sae_parking';
-$dbUser = 'root';
-$dbPass = '';
+<?php
+$dbHost = '127.0.0.1';  // Adresse de votre serveur MySQL
+$dbName = 'ParkingMetz';  // Nom de votre base de données
+$dbUser = 'root';  // Votre nom d'utilisateur MySQL
+$dbPass = '';  // Votre mot de passe MySQL
+?>
 ```
 
-    - Classe OOP : `src/Database/Database.php` a des valeurs par défaut (host `127.0.0.1`, db `ParkingMetz`, user `root`).
-     Si vous préférez l'utiliser, adaptez le paramètre `$db` dans le constructeur ou instanciez-la avec vos valeurs.
+#### Fichier `src/Database/Database.php` (optionnel, si vous utilisez la classe OOP)
 
-5. Accéder au site et à l'API :
+```php
+<?php
+class Database {
+    private $host = '127.0.0.1';
+    private $db_name = 'ParkingMetz';
+    private $username = 'root';
+    private $password = '';
+    // ...
+}
+?>
+```
 
-   - Interface principale (cartographie) :
-     `http://localhost/MVP/public/index.php`
-   - Page de test (tableau JSON) :
-     `http://localhost/MVP/public/test_parking.html`
-   - Endpoint principal (GeoJSON via service distant) :
-     `http://localhost/MVP/public/api/get_parkings.php`
-   - Endpoint local enrichi / cache :
-     `http://localhost/MVP/public/api/parkings_geojson.php`
+### 4. Démarrage du serveur
 
-## Guide utilisateur (interface web)
+1. Démarrez votre serveur web (Apache) et MySQL.
+2. Accédez à l'application via votre navigateur :
+   `http://localhost/loky/public/index.html`
 
-Page principale : `public/index.php` (carte interactive, guidage et paramètres)
+## Guide d'utilisation
 
-- Cartographie : carte Leaflet affichant les parkings (marqueurs) et la position
-  utilisateur.
+### Pour les nouveaux utilisateurs
 
-- Bouton `📍` (id `btnCentrer`) — recentre la carte sur votre position actuelle
-  (nécessite autorisation de géolocalisation).
+#### Première visite
 
-- Bandeau de guidage (bas-centre) :
-  - Affiche le nom du parking le plus proche compatible avec vos filtres.
-  - Bouton `Allez` (id `btnGuider`) — lance le guidage vers le parking
-    sélectionné (calcule un itinéraire et ouvre le panneau de routage).
+1. **Autorisation de géolocalisation** : Lors de votre première visite,
+   l'application vous demandera l'autorisation d'accéder à votre position.
+   Cliquez sur "Autoriser" pour une expérience optimale.
 
-- Popup d'un parking (cliquer sur un marqueur) :
-  - Contient un bouton `➡️` qui lance l'itinéraire vers ce parking précis
-    (`goToParking(lat,lon,fid)`).
+2. **Sélection de la langue** : Utilisez le menu paramètres (⚙️) pour changer la
+   langue entre français et anglais.
 
-- Panneau de routage (Leaflet Routing Machine) :
-  - Affiche l'itinéraire étape par étape.
-  - Bouton `✖` (dans le panneau) — quitte la navigation (fonction
-    `quitNavigation()`), stoppe le polling Metz et réaffiche la liste des
-    parkings.
+3. **Exploration de la carte** : La carte affiche automatiquement les parkings
+   autour de votre position actuelle.
 
-- Bouton `⚙️` (id `parametre`) — ouvre le panneau de paramètres (`#menuParam`) :
-  - PMR (toggle) — filtre les parkings accessibles PMR.
-  - Hauteur max (input number) — affiche uniquement les parkings compatibles
-    avec la hauteur de votre véhicule.
-  - Véhicules électriques (toggle) — filtre pour parkings offrant des bornes
-    électriques (si info disponible).
-  - Vérifier disponibilité Metz (toggle `metzToggle`) — si activé, l'application
-    tente d'obtenir les places disponibles via les données locales ou via une
-    URL externe configurée (optionnelle).
+#### Recherche d'un parking
 
-- Paramètres persistants : les préférences (PMR, hauteur, électrique, URL Metz)
-  sont sauvegardées dans `localStorage`.
+1. **Filtres de base** (sans compte) :
+   - **PMR** : Cochez pour afficher uniquement les parkings accessibles aux
+     personnes à mobilité réduite
+   - **Hauteur maximale** : Entrez la hauteur de votre véhicule en cm
+   - **Véhicules électriques** : Cochez pour voir les parkings avec bornes de
+     recharge
+   - **Gratuit uniquement** : Cochez pour masquer les parkings payants
 
-## Comportement côté client
+2. **Guidage vers le parking le plus proche** :
+   - Cliquez sur le bouton "Allez" dans le bandeau inférieur pour vous diriger
+     vers le parking recommandé
+   - Suivez les instructions de l'itinéraire affiché
 
-- Chargement des données : la page charge `api/parkings_geojson.php` (GeoJSON
-  enrichi). Le script applique un rayon d'intérêt (par défaut 50 km) autour de
-  l'utilisateur pour limiter les données affichées.
-- Filtrage : les paramètres (PMR, hauteur, électrique) sont appliqués côté
-  client avant d'afficher les parkings.
-- Vérification de disponibilité : si l'option Metz est activée, le client tente
-  d'extraire une valeur de disponibilité depuis la feature (propriété connue) ou
-  depuis une URL externe (si configurée). Le polling est périodique.
+3. **Sélection manuelle** :
+   - Cliquez sur un marqueur de parking sur la carte
+   - Dans la popup, cliquez sur "➡️" pour obtenir l'itinéraire
+
+#### Mode déplacement virtuel
+
+Pour tester l'application sans vous déplacer :
+
+1. Activez le mode virtuel via le menu paramètres
+2. Utilisez la croix directionnelle pour simuler vos déplacements
+3. Ajustez la vitesse avec le curseur
+4. Définissez votre "maison" et naviguez-y
+
+### Création d'un compte utilisateur
+
+Pour accéder à des fonctionnalités avancées :
+
+1. Cliquez sur le bouton paramètres (⚙️)
+2. Cliquez sur "Inscription"
+3. Remplissez le formulaire :
+   - Email
+   - Mot de passe
+   - Nom (optionnel)
+4. Validez votre inscription
+
+#### Connexion
+
+1. Dans le menu paramètres, cliquez sur "Connexion"
+2. Entrez votre email et mot de passe
+
+### Gestion des véhicules (utilisateurs connectés)
+
+1. Dans les paramètres, section "Mes véhicules"
+2. Cliquez sur "+" pour ajouter un véhicule
+3. Entrez :
+   - Plaque d'immatriculation (optionnel)
+   - Hauteur en cm
+   - Type : Voiture, Vélo électrique, etc.
+
+L'application utilisera automatiquement les caractéristiques de votre véhicule
+pour filtrer les parkings.
+
+### Parkings enregistrés
+
+1. Cliquez sur un marqueur de parking
+2. Dans la popup, cliquez sur "💾" pour enregistrer le parking
+3. Accédez à vos parkings enregistrés via le menu paramètres
+
+### Changement de ville
+
+L'application détecte automatiquement votre ville, mais vous pouvez la changer :
+
+1. Utilisez le sélecteur de ville dans l'interface (si disponible)
+2. Ou modifiez manuellement l'URL : `?city=metz`, `?city=strasbourg`, ou
+   `?city=london`
+
+## API
+
+L'application expose plusieurs endpoints API :
+
+- `api/parkings_geojson.php` : Retourne les parkings au format GeoJSON
+  - Paramètres : `city` (metz, strasbourg, london)
+- `api/get_parkings.php` : Endpoint alternatif pour récupérer les données
+- `api/Parking/index.php` : Gestion CRUD des parkings (nécessite
+  authentification)
+- `api/Utilisateur/index.php` : Gestion des utilisateurs
+- `api/Vehicule/index.php` : Gestion des véhicules
+- `api/SavedParkings/index.php` : Gestion des parkings enregistrés
+
+## Dépannage
+
+### Problèmes courants
+
+1. **Carte ne s'affiche pas** :
+   - Vérifiez votre connexion internet
+   - Autorisez la géolocalisation dans votre navigateur
+
+2. **Aucun parking affiché** :
+   - Vérifiez les filtres appliqués
+   - Essayez de zoomer ou de vous déplacer sur la carte
+
+3. **Erreur de base de données** :
+   - Vérifiez la configuration dans `_db_connect.php`
+   - Assurez-vous que MySQL est démarré
+
+4. **Mode virtuel ne fonctionne pas** :
+   - Actualisez la page
+   - Vérifiez que JavaScript est activé
+
+### Logs et débogage
+
+- Ouvrez la console développeur de votre navigateur (F12) pour voir les erreurs
+  JavaScript
+- Vérifiez les logs du serveur web pour les erreurs PHP
+
+## Développement
+
+### Structure du projet
+
+```
+loky/
+├── public/           # Fichiers publics accessibles via web
+│   ├── index.html    # Page principale
+│   ├── api/          # Endpoints API
+│   ├── css/          # Styles CSS
+│   ├── js/           # Scripts JavaScript
+│   └── i18n/         # Fichiers de traduction
+├── src/              # Code source PHP
+│   ├── Database/     # Classes de base de données
+│   └── Service/      # Services métier
+├── promptbdd.txt     # Schéma de base de données
+└── README.md         # Ce fichier
+```
+
+### Technologies utilisées
+
+- **Frontend** : HTML5, CSS3, JavaScript (Vanilla)
+- **Cartes** : Leaflet.js
+- **Itinéraires** : Leaflet Routing Machine
+- **Backend** : PHP 7.4+
+- **Base de données** : MySQL
+- **Internationalisation** : JSON-based
+
+## Contribution
+
+Pour contribuer au développement :
+
+1. Forkez le projet
+2. Créez une branche pour votre fonctionnalité
+3. Commitez vos changements
+4. Poussez vers votre fork
+5. Créez une Pull Request
+
+## Licence
+
+Ce projet est sous licence MIT. Voir le fichier LICENSE pour plus de détails.
+
+## Support
+
+Pour obtenir de l'aide :
+
+- Consultez la documentation
+- Ouvrez une issue sur GitHub
+- Contactez l'équipe de développement
+
+---
+
+_Dernière mise à jour : Janvier 2026_ depuis une URL externe (si configurée). Le
+polling est périodique.
 
 ## Page de test
 
